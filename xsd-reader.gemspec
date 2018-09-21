@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
 
   s.add_dependency 'nokogiri', '~> 1.6'
-  s.add_dependency 'rest-client', '~> 1.8'
+  s.add_dependency 'rest-client'
   s.add_development_dependency 'rake', '~> 10.1'
   s.add_development_dependency 'rspec', '~> 3.3'
 

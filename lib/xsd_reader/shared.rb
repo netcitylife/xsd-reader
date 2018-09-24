@@ -120,8 +120,7 @@ module XsdReader
         "#{schema_namespace_prefix}extension" => Extension,
         "#{schema_namespace_prefix}import" => Import,
         "#{schema_namespace_prefix}simpleType" => SimpleType,
-        "#{schema_namespace_prefix}all" => SimpleType,
-        "#{schema_namespace_prefix}annotation" => SimpleType
+        "#{schema_namespace_prefix}all" => SimpleType
       }
 
       return class_mapping[n.is_a?(Nokogiri::XML::Node) ? n.name : n]

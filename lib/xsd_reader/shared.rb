@@ -68,7 +68,7 @@ module XsdReader
     end
 
     def ref
-      node.attributes['ref'] ? node.attributes['ref'].value : nil
+      node.attributes['ref'] ? node.attributes['ref'].value.split(':').last : nil
     end
 
     def referenced_element

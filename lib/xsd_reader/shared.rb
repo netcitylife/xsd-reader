@@ -168,9 +168,9 @@ module XsdReader
     end
 
     def all_elements
-      @all_elements ||= ordered_elements +
+      @all_elements ||= (ordered_elements +
         (linked_complex_type ? linked_complex_type.all_elements : []) +
-        (referenced_element ? referenced_element.all_elements : [])
+        (referenced_element ? referenced_element.all_elements : [])).uniq
     end
 
     def child_elements?

@@ -1,14 +1,13 @@
 require 'logger'
 
 module XsdReader
-
   module Shared
 
     attr_reader :options
 
     def initialize(opts = {})
       @options = opts || {}
-      raise "#{self.class}.new expects a hash parameter" if !@options.is_a?(Hash)
+      raise "#{self.class}.new expects a hash parameter" unless @options.is_a?(Hash)
     end
 
     def self.default_logger
@@ -21,12 +20,14 @@ module XsdReader
       options[:logger] || default_logger
     end
 
+    # Get current XML node
+    # @return Nokogiri::XML::Node
     def node
       options[:node]
     end
 
     def schema_namespace_prefix
-      @schema_namespace_prefix ||= [(self.node.namespaces||{}).detect {|ns| ns[1]=~/XMLSchema/}.first.split(':')[1],nil].uniq.join(':')
+      @schema_namespace_prefix ||= [(self.node.namespaces || {}).detect { |ns| ns[1] =~ /XMLSchema/ }.first.split(':')[1], nil].uniq.join(':')
     end
 
     def nodes
@@ -41,15 +42,16 @@ module XsdReader
 
       names.each do |curname|
         next if result.nil?
-        if curname.to_s =~ /^\@/
-          attr_name = curname.to_s.gsub(/^\@/, '')
-          result = result.attributes.find{|attr| attr.name == attr_name}
+
+        if curname.to_s =~ /^@/
+          attr_name = curname.to_s.gsub(/^@/, '')
+          result    = result.attributes.find { |attr| attr.name == attr_name }
         else
-          result = result.elements.find{|child| child.name == curname.to_s}
+          result = result.elements.find { |child| child.name == curname.to_s }
         end
       end
 
-      return result
+      result
     end
 
     #
@@ -64,7 +66,7 @@ module XsdReader
     end
 
     def name_referenced
-      referenced_element ? referenced_element.name : nil
+      referenced_element&.name
     end
 
     def ref
@@ -72,13 +74,11 @@ module XsdReader
     end
 
     def referenced_element
-      ref && schema ? schema.elements.find{|el| el.name == ref} : nil
+      ref && schema ? schema.elements.find { |el| el.name == ref } : nil
     end
 
-
     def type
-      type = node.attributes['type'] ? node.attributes['type'].value : nil
-      type || (referenced_element ? referenced_element.type : nil)
+      node.attributes['type']&.value || referenced_element&.type
     end
 
     def type_name
@@ -89,10 +89,9 @@ module XsdReader
       type ? type.split(':').first : nil
     end
 
-
     # base stuff belongs to extension type objects only, but let's be flexible
     def base
-      node.attributes['base'] ? node.attributes['base'].value : nil
+      node.attributes['base']&.value
     end
 
     def base_name
@@ -103,32 +102,39 @@ module XsdReader
       base ? base.split(':').first : nil
     end
 
+    # Return element documentation
+    # @return [String]
+    def documentation
+      xs  = schema_namespace_prefix
+      doc = node.xpath("./#{xs}annotation/#{xs}documentation/text()").map(&:to_s).map(&:strip).join("\n")
+      doc.present? ? doc : nil
+    end
 
     #
     # Node to class mapping
     #
     def class_for(n)
       class_mapping = {
-        "#{schema_namespace_prefix}schema" => Schema,
-        "#{schema_namespace_prefix}element" => Element,
-        "#{schema_namespace_prefix}attribute" => Attribute,
-        "#{schema_namespace_prefix}choice" => Choice,
-        "#{schema_namespace_prefix}complexType" => ComplexType,
-        "#{schema_namespace_prefix}sequence" => Sequence,
-        "#{schema_namespace_prefix}simpleContent" => SimpleContent,
+        "#{schema_namespace_prefix}schema"         => Schema,
+        "#{schema_namespace_prefix}element"        => Element,
+        "#{schema_namespace_prefix}attribute"      => Attribute,
+        "#{schema_namespace_prefix}choice"         => Choice,
+        "#{schema_namespace_prefix}complexType"    => ComplexType,
+        "#{schema_namespace_prefix}sequence"       => Sequence,
+        "#{schema_namespace_prefix}simpleContent"  => SimpleContent,
         "#{schema_namespace_prefix}complexContent" => ComplexContent,
-        "#{schema_namespace_prefix}extension" => Extension,
-        "#{schema_namespace_prefix}import" => Import,
-        "#{schema_namespace_prefix}simpleType" => SimpleType,
-        "#{schema_namespace_prefix}all" => SimpleType
+        "#{schema_namespace_prefix}extension"      => Extension,
+        "#{schema_namespace_prefix}import"         => Import,
+        "#{schema_namespace_prefix}simpleType"     => SimpleType,
+        "#{schema_namespace_prefix}all"            => SimpleType
       }
 
       return class_mapping[n.is_a?(Nokogiri::XML::Node) ? n.name : n]
     end
 
     def node_to_object(node)
-      fullname = [node.namespace ? node.namespace.prefix : nil, node.name].reject{|str| str.nil? || str == ''}.join(':')
-      klass = class_for(fullname)
+      fullname = [node.namespace ? node.namespace.prefix : nil, node.name].reject { |str| str.nil? || str == '' }.join(':')
+      klass    = class_for(fullname)
       # logger.debug "node_to_object, klass: #{klass}, fullname: #{fullname}"
       klass.nil? ? nil : klass.new(options.merge(:node => node, :schema => schema))
     end
@@ -142,13 +148,13 @@ module XsdReader
     end
 
     def mappable_children(xml_name)
-#3      p prepend_namespace(xml_name )
+      #3      p prepend_namespace(xml_name )
       node.search("./#{prepend_namespace xml_name}").to_a
     end
 
     def map_children(xml_name)
       # puts "Map Children with #{xml_name} for #{self.class}"
-      mappable_children(xml_name).map{|current_node| node_to_object(current_node)}
+      mappable_children(xml_name).map { |current_node| node_to_object(current_node) }
     end
 
     def direct_elements
@@ -162,7 +168,7 @@ module XsdReader
     def ordered_elements
       # loop over each interpretable child xml node, and if we can convert a child node
       # to an XsdReader object, let it give its compilation of all_elements
-      nodes.map{|node| node_to_object(node)}.compact.map do |obj|
+      nodes.map { |node| node_to_object(node) }.compact.map do |obj|
         obj.is_a?(Element) ? obj : obj.ordered_elements
       end.flatten
     end
@@ -179,7 +185,7 @@ module XsdReader
 
     def attributes
       @attributes ||= map_children("attribute") #+
-        #(referenced_element ? referenced_element.attributes : [])
+      #(referenced_element ? referenced_element.attributes : [])
     end
 
     def sequences
@@ -199,7 +205,7 @@ module XsdReader
     end
 
     def linked_complex_type
-      @linked_complex_type ||= (schema_for_namespace(type_namespace) || schema).complex_types.find{|ct| ct.name == (type_name || type)}
+      @linked_complex_type ||= (schema_for_namespace(type_namespace) || schema).complex_types.find { |ct| ct.name == (type_name || type) }
       #@linked_complex_type ||= object_by_name('#{schema_namespace_prefix}complexType', type) || object_by_name('#{schema_namespace_prefix}complexType', type_name)
     end
 
@@ -252,7 +258,7 @@ module XsdReader
     def schema
       return options[:schema] if options[:schema]
       schema_node = node.search('//xs:schema')[0]
-      return schema_node.nil? ? nil : node_to_object(schema_node)
+      schema_node.nil? ? nil : node_to_object(schema_node)
     end
 
     def object_by_name(xml_name, name)
@@ -266,7 +272,7 @@ module XsdReader
         return obj if obj
       end
 
-      return nil
+      nil
     end
 
     def schema_for_namespace(ns)
@@ -279,8 +285,7 @@ module XsdReader
       end
 
       logger.debug "Shared#schema_for_namespace no result"
-      return nil
+      nil
     end
   end
-
-end # module XsdReader
+end

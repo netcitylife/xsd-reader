@@ -5,26 +5,28 @@ module XsdReader
     include Shared
 
     def namespace
-      node.attributes['namespace'] ? node.attributes['namespace'].value : nil
+      node.attributes['namespace']&.value
     end
 
     def schema_location
-      node.attributes['schemaLocation'] ? node.attributes['schemaLocation'].value : nil
+      node.attributes['schemaLocation']&.value
     end
 
     def reader
       return @reader || options[:reader] if @reader || options[:reader]
       if download_path
-        File.write(download_path, download) if !File.file?(download_path)
+        File.write(download_path, download) unless File.file?(download_path)
         return @reader = XsdReader::XML.new(:xsd_file => download_path)
       end
 
-      return @reader = XsdReader::XML.new(:xsd_xml => download) 
+      @reader = XsdReader::XML.new(:xsd_xml => download)
     end
 
     def uri
       if namespace =~ /\.xsd$/
         namespace
+      elsif schema_location =~ /^https?:/
+        schema_location
       else
         namespace.gsub(/#{File.basename(schema_location, '.*')}$/, '').to_s + schema_location
       end
@@ -48,9 +50,9 @@ module XsdReader
     private
 
     def download_uri(uri)
-      logger.info "Downloading import schema from (uri)"
+      logger.info "Downloading import schema from (#{uri})"
       response = RestClient.get uri
-      return response.body
+      response.body
     end
-  end # class Import
+  end
 end

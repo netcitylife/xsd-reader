@@ -5,5 +5,5 @@ module XsdReader
     def attributes
       super + (extension ? extension.attributes : [])
     end
-  end # class Schema
+  end
 end

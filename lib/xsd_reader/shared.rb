@@ -105,9 +105,16 @@ module XsdReader
     # Return element documentation
     # @return [String]
     def documentation
+      documentation_for(node)
+    end
+
+    # Return documentation for specified node
+    # @param [Nokogiri::Xml::Node] node
+    # @return [String]
+    def documentation_for(node)
       xs  = schema_namespace_prefix
       doc = node.xpath("./#{xs}annotation/#{xs}documentation/text()").map(&:to_s).map(&:strip).join("\n")
-      doc.present? ? doc : nil
+      doc.empty? ? nil : doc
     end
 
     #
@@ -126,7 +133,8 @@ module XsdReader
         "#{schema_namespace_prefix}extension"      => Extension,
         "#{schema_namespace_prefix}import"         => Import,
         "#{schema_namespace_prefix}simpleType"     => SimpleType,
-        "#{schema_namespace_prefix}all"            => SimpleType
+        "#{schema_namespace_prefix}all"            => SimpleType,
+        "#{schema_namespace_prefix}restriction"    => Restriction,
       }
 
       return class_mapping[n.is_a?(Nokogiri::XML::Node) ? n.name : n]
@@ -148,8 +156,7 @@ module XsdReader
     end
 
     def mappable_children(xml_name)
-      #3      p prepend_namespace(xml_name )
-      node.search("./#{prepend_namespace xml_name}").to_a
+      node.search("./#{prepend_namespace(xml_name)}").to_a
     end
 
     def map_children(xml_name)
@@ -201,7 +208,7 @@ module XsdReader
     end
 
     def complex_type
-      complex_types.first || linked_complex_type || (referenced_element ? referenced_element.complex_type : nil)
+      complex_types.first || linked_complex_type || referenced_element&.complex_type
     end
 
     def linked_complex_type
@@ -235,6 +242,10 @@ module XsdReader
 
     def simple_types
       @simple_types ||= map_children("simpleType")
+    end
+
+    def simple_type
+      simple_types.first || linked_simple_type || referenced_element&.simple_type
     end
 
     def linked_simple_type

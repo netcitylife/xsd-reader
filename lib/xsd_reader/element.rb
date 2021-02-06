@@ -23,11 +23,11 @@ module XsdReader
 
     def max_occurs
       val = node.attributes['maxOccurs'] ? node.attributes['maxOccurs'].value : nil
-      val == 'unbounded' ? :unbounded : val.nil? ? nil : val.to_i
+      val == 'unbounded' ? :unbounded : val&.to_i
     end
 
     def multiple_allowed?
-      max_occurs == :unbounded || max_occurs.to_i > 0
+      max_occurs == :unbounded || max_occurs.to_i > 1
     end
 
     def required?

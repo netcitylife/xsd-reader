@@ -268,11 +268,12 @@ module XsdReader
 
     def schema
       return options[:schema] if options[:schema]
-      schema_node = node.search('//xs:schema')[0]
+      schema_node = node.xpath("//#{schema_namespace_prefix}schema")[0]
       schema_node.nil? ? nil : node_to_object(schema_node)
     end
 
     def object_by_name(xml_name, name)
+      # TODO: add namespace hint, otherwise may get errors in imported schemas
       # find in local schema, then look in imported schemas
       nod = node.xpath("//#{xml_name}[@name=\"#{name}\"]").first
       return node_to_object(nod) if nod

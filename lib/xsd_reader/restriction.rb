@@ -9,7 +9,7 @@ module XsdReader
 
         if key == 'enumeration'
           hash[key]        ||= {}
-          hash[key][value] = documentation_for(node) || value
+          hash[key][value] = documentation_for(node)
         else
           hash[key] = value
         end

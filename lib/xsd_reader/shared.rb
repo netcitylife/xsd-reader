@@ -31,7 +31,7 @@ module XsdReader
     end
 
     def nodes
-      node.search("./*")
+      node.xpath("./*")
     end
 
     def [](*args)
@@ -137,7 +137,7 @@ module XsdReader
         "#{schema_namespace_prefix}restriction"    => Restriction,
       }
 
-      return class_mapping[n.is_a?(Nokogiri::XML::Node) ? n.name : n]
+      class_mapping[n.is_a?(Nokogiri::XML::Node) ? n.name : n]
     end
 
     def node_to_object(node)
@@ -156,7 +156,7 @@ module XsdReader
     end
 
     def mappable_children(xml_name)
-      node.search("./#{prepend_namespace(xml_name)}").to_a
+      node.xpath("./#{prepend_namespace(xml_name)}").to_a
     end
 
     def map_children(xml_name)
@@ -249,8 +249,8 @@ module XsdReader
     end
 
     def linked_simple_type
-      @linked_simple_type ||= object_by_name("#{schema_namespace_prefix}simpleType", type) || object_by_name("#{schema_namespace_prefix}simpleType", type_name)
-      # @linked_simple_type ||= (type_namespace ? schema_for_namespace(type_namespace) : schema).simple_types.find{|st| st.name == (type_name || type)}
+      # @linked_simple_type ||= object_by_name("#{schema_namespace_prefix}simpleType", type) || object_by_name("#{schema_namespace_prefix}simpleType", type_name)
+      @linked_simple_type ||= (schema_for_namespace(type_namespace) || schema).simple_types.find { |st| st.name == (type_name || type) }
     end
 
     #
@@ -274,7 +274,7 @@ module XsdReader
 
     def object_by_name(xml_name, name)
       # find in local schema, then look in imported schemas
-      nod = node.search("//#{xml_name}[@name=\"#{name}\"]").first
+      nod = node.xpath("//#{xml_name}[@name=\"#{name}\"]").first
       return node_to_object(nod) if nod
 
       # try to find in any of the importers

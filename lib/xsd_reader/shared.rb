@@ -89,7 +89,7 @@ module XsdReader
       type ? type.split(':').first : nil
     end
 
-    # base stuff belongs to extension type objects only, but let's be flexible
+    # extension and restriction base type
     def base
       node.attributes['base']&.value
     end

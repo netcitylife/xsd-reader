@@ -2,10 +2,6 @@ module XsdReader
   class Restriction
     include Shared
 
-    def base
-      node.attributes['base'].value.split(':').last
-    end
-
     def restrictions
       nodes.inject({}) do |hash, node|
         key   = node.name

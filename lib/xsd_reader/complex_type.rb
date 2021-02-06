@@ -1,7 +1,10 @@
 module XsdReader
-
   class ComplexType
     include Shared
+
+    def elements
+      all_elements
+    end
 
     def attributes
       super + (simple_content ? simple_content.attributes : [])
@@ -16,7 +19,5 @@ module XsdReader
     def parent_elements
       elements_by_type(self.name)
     end
-
-  end # class ComplexType
-
-end # module XsdReader
+  end
+end

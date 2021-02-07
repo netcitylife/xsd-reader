@@ -1,6 +1,7 @@
-require 'xsd_reader/shared'
-
 module XsdReader
+  # The element element defines an element.
+  # Parent elements: schema, choice, all, sequence, group
+  # https://www.w3schools.com/xml/el_element.asp
   class Element
     include Shared
 
@@ -17,25 +18,45 @@ module XsdReader
       @_element_complex_type ||= super || linked_complex_type
     end
 
-    def min_occurs
-      node.attributes['minOccurs'] ? node.attributes['minOccurs'].value.to_i : nil
-    end
-
-    def max_occurs
-      val = node.attributes['maxOccurs'] ? node.attributes['maxOccurs'].value : nil
-      val == 'unbounded' ? :unbounded : val&.to_i
-    end
-
-    def multiple_allowed?
-      max_occurs == :unbounded || max_occurs.to_i > 1
-    end
-
+    # Determine if element is required
+    # @return [Boolean]
     def required?
-      min_occurs.nil? || min_occurs.to_i > 0 # TODO; consider if the element is part of a choice definition?
+      min_occurs > 0 # TODO; consider if the element is part of a choice definition?
     end
 
+    # Determine if element is optional
+    # @return [Boolean]
     def optional?
       !required?
+    end
+
+    # Determine if element may occur multiple times
+    # @return [Boolean]
+    def multiple_allowed?
+      max_occurs == :unbounded || max_occurs > 1
+    end
+
+    # Optional. Specifies a fixed value for the element (can only be used if the element's content is a simple type or text only)
+    # @return [String, nil]
+    def fixed
+      node.attributes['fixed']&.value
+    end
+
+    # Optional. Specifies the minimum number of times this element can occur in the parent element.
+    # The value can be any number >= 0. Default value is 1.
+    # This attribute cannot be used if the parent element is the schema element
+    # @return [Integer]
+    def min_occurs
+      node.attributes['minOccurs']&.value&.to_i || 1
+    end
+
+    # Optional. Specifies the maximum number of times this element can occur in the parent element.
+    # The value can be any number >= 0, or if you want to set no limit on the maximum number, use the value "unbounded".
+    # Default value is 1. This attribute cannot be used if the parent element is the schema element
+    # @return [Integer, Symbol, nil]
+    def max_occurs
+      val = node.attributes['maxOccurs']&.value || 1
+      val == 'unbounded' ? :unbounded : val&.to_i
     end
 
     def family_tree(stack = [])

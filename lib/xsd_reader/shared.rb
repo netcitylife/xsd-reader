@@ -162,8 +162,7 @@ module XsdReader
     end
 
     def linked_complex_type
-      @linked_complex_type ||= (schema_for_namespace(type_namespace) || schema).complex_types.find { |ct| ct.name == (type_name || type) }
-      #@linked_complex_type ||= object_by_name('#{schema_namespace_prefix}complexType', type) || object_by_name('#{schema_namespace_prefix}complexType', type_name)
+      @linked_complex_type ||= object_by_name('complexType', type)
     end
 
     def simple_contents
@@ -199,8 +198,7 @@ module XsdReader
     end
 
     def linked_simple_type
-      # @linked_simple_type ||= object_by_name("#{schema_namespace_prefix}simpleType", type) || object_by_name("#{schema_namespace_prefix}simpleType", type_name)
-      @linked_simple_type ||= (schema_for_namespace(type_namespace) || schema).simple_types.find { |st| st.name == (type_name || type) }
+      @linked_simple_type ||= object_by_name('simpleType', type)
     end
 
     #
@@ -241,6 +239,7 @@ module XsdReader
     # @param [String] name
     # @return [BaseObject, nil]
     def object_by_name(node_name, name)
+      node_name = prepend_namespace(node_name)
 
       # get search schema
       if name.include?(':')

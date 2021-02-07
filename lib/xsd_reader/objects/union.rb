@@ -15,7 +15,7 @@ module XsdReader
     # @return [Array<XsdReader::SimpleType>]
     def linked_simple_types
       @linked_simple_types ||= member_types.map do |name|
-        object_by_name(prepend_namespace('simpleType'), name)
+        object_by_name('simpleType', name)
       end
     end
   end

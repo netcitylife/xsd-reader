@@ -1,4 +1,5 @@
 require 'xsd_reader/shared'
+require 'xsd_reader/shared/min_max_occurs'
 require 'xsd_reader/xml'
 require 'xsd_reader/schema'
 require 'xsd_reader/element'
@@ -12,4 +13,7 @@ require 'xsd_reader/extension'
 require 'xsd_reader/import'
 require 'xsd_reader/simple_type'
 require 'xsd_reader/restriction'
+require 'xsd_reader/group'
+require 'xsd_reader/all'
+require 'xsd_reader/any'
 

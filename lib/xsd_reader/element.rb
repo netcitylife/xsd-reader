@@ -4,6 +4,7 @@ module XsdReader
   # https://www.w3schools.com/xml/el_element.asp
   class Element
     include Shared
+    include MinMaxOccurs
 
     def elements(opts = {})
       return super if opts[:direct] == true
@@ -40,23 +41,6 @@ module XsdReader
     # @return [String, nil]
     def fixed
       node.attributes['fixed']&.value
-    end
-
-    # Optional. Specifies the minimum number of times this element can occur in the parent element.
-    # The value can be any number >= 0. Default value is 1.
-    # This attribute cannot be used if the parent element is the schema element
-    # @return [Integer]
-    def min_occurs
-      node.attributes['minOccurs']&.value&.to_i || 1
-    end
-
-    # Optional. Specifies the maximum number of times this element can occur in the parent element.
-    # The value can be any number >= 0, or if you want to set no limit on the maximum number, use the value "unbounded".
-    # Default value is 1. This attribute cannot be used if the parent element is the schema element
-    # @return [Integer, Symbol, nil]
-    def max_occurs
-      val = node.attributes['maxOccurs']&.value || 1
-      val == 'unbounded' ? :unbounded : val&.to_i
     end
 
     def family_tree(stack = [])

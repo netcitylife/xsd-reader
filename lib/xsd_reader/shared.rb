@@ -133,8 +133,10 @@ module XsdReader
         "#{schema_namespace_prefix}extension"      => Extension,
         "#{schema_namespace_prefix}import"         => Import,
         "#{schema_namespace_prefix}simpleType"     => SimpleType,
-        "#{schema_namespace_prefix}all"            => SimpleType,
+        "#{schema_namespace_prefix}all"            => All,
         "#{schema_namespace_prefix}restriction"    => Restriction,
+        "#{schema_namespace_prefix}group"          => Group,
+        "#{schema_namespace_prefix}any"            => Any,
       }
 
       class_mapping[n.is_a?(Nokogiri::XML::Node) ? n.name : n]
@@ -298,6 +300,12 @@ module XsdReader
 
       logger.debug "Shared#schema_for_namespace no result"
       nil
+    end
+
+    # Optional. Specifies a unique ID for the element
+    # @return [String, nil]
+    def id
+      node.attributes['id']&.value
     end
   end
 end

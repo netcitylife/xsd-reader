@@ -274,19 +274,39 @@ module XsdReader
       schema_node.nil? ? nil : node_to_object(schema_node)
     end
 
-    def object_by_name(xml_name, name)
-      # TODO: add namespace hint, otherwise may get errors in imported schemas
-      # find in local schema, then look in imported schemas
-      nod = node.xpath("//#{xml_name}[@name=\"#{name}\"]").first
-      return node_to_object(nod) if nod
+    # def object_by_name(xml_name, name)
+    #   # TODO: add namespace hint, otherwise may get errors in imported schemas
+    #   # find in local schema, then look in imported schemas
+    #   nod = node.xpath("//#{xml_name}[@name=\"#{name}\"]").first
+    #   return node_to_object(nod) if nod
+    #
+    #   # try to find in any of the importers
+    #   self.schema.imports.each do |import|
+    #     obj = import.reader.schema.object_by_name(xml_name, name)
+    #     return obj if obj
+    #   end
+    #
+    #   nil
+    # end
 
-      # try to find in any of the importers
-      self.schema.imports.each do |import|
-        obj = import.reader.schema.object_by_name(xml_name, name)
-        return obj if obj
+    # @param [String] node_name
+    # @param [String] name
+    def object_by_name(node_name, name)
+
+      # get search schema
+      if name.include?(':')
+        prefix, local_name = name.split(':')
+        search_schema = schema_for_namespace(prefix)
+        return nil unless search_schema
+      else
+        local_name = name
+        search_schema = schema
       end
 
-      nil
+      prefix = schema_namespace_prefix[0..-2]
+      namespace = node.namespaces["xmlns#{prefix == '' ? '' : ":#{prefix}"}"]
+
+      search_schema.node.xpath("//#{node_name}[@name=\"#{local_name}\"]", { prefix => namespace }).first
     end
 
     def schema_for_namespace(ns)

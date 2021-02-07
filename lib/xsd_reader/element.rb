@@ -20,9 +20,10 @@ module XsdReader
     end
 
     # Determine if element is required
+    # TODO: consider parent node min/max occurs and choice definitions
     # @return [Boolean]
     def required?
-      min_occurs > 0 # TODO; consider if the element is part of a choice definition?
+      min_occurs > 0
     end
 
     # Determine if element is optional
@@ -32,6 +33,7 @@ module XsdReader
     end
 
     # Determine if element may occur multiple times
+    # TODO: consider parent node min/max occurs definitions
     # @return [Boolean]
     def multiple_allowed?
       max_occurs == :unbounded || max_occurs > 1

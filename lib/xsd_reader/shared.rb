@@ -3,35 +3,8 @@ require 'logger'
 module XsdReader
   module Shared
 
-    attr_reader :options
-
-    def initialize(opts = {})
-      @options = opts || {}
-      raise "#{self.class}.new expects a hash parameter" unless @options.is_a?(Hash)
-    end
-
-    def self.default_logger
-      @default_logger ||= Logger.new(STDOUT).tap do |logr|
-        logr.level = Logger::WARN
-      end
-    end
-
-    def logger
-      options[:logger] || default_logger
-    end
-
-    # Get current XML node
-    # @return Nokogiri::XML::Node
-    def node
-      options[:node]
-    end
-
     def schema_namespace_prefix
       @schema_namespace_prefix ||= [(self.node.namespaces || {}).detect { |ns| ns[1] =~ /XMLSchema/ }.first.split(':')[1], nil].uniq.join(':')
-    end
-
-    def nodes
-      node.xpath("./*")
     end
 
     def [](*args)
@@ -117,36 +90,11 @@ module XsdReader
       doc.empty? ? nil : doc
     end
 
-    #
-    # Node to class mapping
-    #
-    def class_for(n)
-      class_mapping = {
-        "#{schema_namespace_prefix}schema"         => Schema,
-        "#{schema_namespace_prefix}element"        => Element,
-        "#{schema_namespace_prefix}attribute"      => Attribute,
-        "#{schema_namespace_prefix}choice"         => Choice,
-        "#{schema_namespace_prefix}complexType"    => ComplexType,
-        "#{schema_namespace_prefix}sequence"       => Sequence,
-        "#{schema_namespace_prefix}simpleContent"  => SimpleContent,
-        "#{schema_namespace_prefix}complexContent" => ComplexContent,
-        "#{schema_namespace_prefix}extension"      => Extension,
-        "#{schema_namespace_prefix}import"         => Import,
-        "#{schema_namespace_prefix}simpleType"     => SimpleType,
-        "#{schema_namespace_prefix}all"            => All,
-        "#{schema_namespace_prefix}restriction"    => Restriction,
-        "#{schema_namespace_prefix}group"          => Group,
-        "#{schema_namespace_prefix}any"            => Any,
-      }
-
-      class_mapping[n.is_a?(Nokogiri::XML::Node) ? n.name : n]
-    end
-
+    # TODO: хранить соответствие ноды и объекта и возвращать уже созданные объекты при повторном запросе
     def node_to_object(node)
       fullname = [node.namespace ? node.namespace.prefix : nil, node.name].reject { |str| str.nil? || str == '' }.join(':')
       klass    = class_for(fullname)
-      # logger.debug "node_to_object, klass: #{klass}, fullname: #{fullname}"
-      klass.nil? ? nil : klass.new(options.merge(:node => node, :schema => schema))
+      klass.nil? ? nil : klass.new(options.merge(node: node, schema: schema))
     end
 
     #
@@ -291,6 +239,7 @@ module XsdReader
 
     # @param [String] node_name
     # @param [String] name
+    # @return [BaseObject, nil]
     def object_by_name(node_name, name)
 
       # get search schema
@@ -306,7 +255,8 @@ module XsdReader
       prefix = schema_namespace_prefix[0..-2]
       namespace = node.namespaces["xmlns#{prefix == '' ? '' : ":#{prefix}"}"]
 
-      search_schema.node.xpath("//#{node_name}[@name=\"#{local_name}\"]", { prefix => namespace }).first
+      nod = search_schema.node.xpath("//#{node_name}[@name=\"#{local_name}\"]", { prefix => namespace }).first
+      nod ? node_to_object(nod) : nil
     end
 
     def schema_for_namespace(ns)
@@ -320,12 +270,6 @@ module XsdReader
 
       logger.debug "Shared#schema_for_namespace no result"
       nil
-    end
-
-    # Optional. Specifies a unique ID for the element
-    # @return [String, nil]
-    def id
-      node.attributes['id']&.value
     end
   end
 end

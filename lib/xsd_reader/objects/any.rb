@@ -2,7 +2,7 @@ module XsdReader
   # The any element enables the author to extend the XML document with elements not specified by the schema.
   # Parent elements: choice, sequence
   # https://www.w3schools.com/xml/el_any.asp
-  class Any
+  class Any < BaseObject
     include Shared
     include MinMaxOccurs
 

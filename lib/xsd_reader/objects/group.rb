@@ -3,7 +3,7 @@ module XsdReader
   # Parent elements: schema, choice, sequence, complexType, restriction (both simpleContent and complexContent),
   # extension (both simpleContent and complexContent)
   # https://www.w3schools.com/xml/el_group.asp
-  class Group
+  class Group < BaseObject
     include Shared
     include MinMaxOccurs
   end

@@ -2,7 +2,7 @@ module XsdReader
   # The union element defines a simple type as a collection (union) of values from specified simple data types.
   # Parent elements: simpleType
   # https://www.w3schools.com/xml/el_union.asp
-  class Union
+  class Union < BaseObject
     include Shared
 
     # Optional. Specifies a list of built-in data types or simpleType elements defined in a schema

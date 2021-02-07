@@ -9,11 +9,17 @@ module XsdReader
 
     def initialize(opts = {})
       @options = opts || {}
-      raise "#{self.class}.new expects a hash parameter" if !@options.is_a?(Hash)
+      raise "#{self.class}.new expects a hash parameter" unless @options.is_a?(Hash)
     end
 
     def logger
-      options[:logger] || XsdReader::Shared.default_logger
+      options[:logger] || default_logger
+    end
+
+    def default_logger
+      @default_logger ||= Logger.new(STDOUT).tap do |logr|
+        logr.level = Logger::WARN
+      end
     end
 
     def xsd_from_uri

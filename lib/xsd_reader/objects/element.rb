@@ -2,7 +2,7 @@ module XsdReader
   # The element element defines an element.
   # Parent elements: schema, choice, all, sequence, group
   # https://www.w3schools.com/xml/el_element.asp
-  class Element
+  class Element < BaseObject
     include Shared
     include MinMaxOccurs
 

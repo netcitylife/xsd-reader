@@ -2,7 +2,7 @@ module XsdReader
   # The restriction element defines restrictions on a simpleType, simpleContent, or complexContent definition.
   # Parent elements: simpleType, simpleContent, complexContent
   # https://www.w3schools.com/xml/el_restriction.asp
-  class Restriction
+  class Restriction < BaseObject
     include Shared
 
     def restrictions

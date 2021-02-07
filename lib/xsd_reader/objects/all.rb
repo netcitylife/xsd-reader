@@ -4,7 +4,7 @@ module XsdReader
   # Parent elements: group, complexType, restriction (both simpleContent and complexContent),
   # extension (both simpleContent and complexContent)
   # https://www.w3schools.com/xml/el_all.asp
-  class All
+  class All < BaseObject
     include Shared
 
     # Optional. Specifies the minimum number of times the element can occur. The value can be 0 or 1. Default value is 1

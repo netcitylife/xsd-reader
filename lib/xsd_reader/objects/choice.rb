@@ -4,7 +4,7 @@ module XsdReader
   # Parent elements: group, choice, sequence, complexType, restriction (both simpleContent and complexContent),
   # extension (both simpleContent and complexContent)
   # https://www.w3schools.com/xml/el_choice.asp
-  class Choice
+  class Choice < BaseObject
     include Shared
     include MinMaxOccurs
   end

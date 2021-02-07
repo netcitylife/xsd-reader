@@ -3,7 +3,7 @@ module XsdReader
   # of attributes or text-only elements.
   # Parent elements: attribute, element, list, restriction, schema, union
   # https://www.w3schools.com/xml/el_simpletype.asp
-  class SimpleType
+  class SimpleType < BaseObject
     include Shared
 
     # Get nested restriction
@@ -17,5 +17,10 @@ module XsdReader
     def union
       @union ||= map_children('union').first
     end
+
+    # TODO: add support for list
+    # def list
+    #
+    # end
   end
 end

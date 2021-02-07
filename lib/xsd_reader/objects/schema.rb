@@ -1,5 +1,5 @@
 module XsdReader
-  class Schema
+  class Schema < BaseObject
     include Shared
 
     def schema

@@ -1,5 +1,5 @@
 module XsdReader
-  class SimpleContent
+  class SimpleContent < BaseObject
     include Shared
 
     def attributes

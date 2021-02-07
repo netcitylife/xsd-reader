@@ -1,7 +1,7 @@
 require 'rest-client'
 
 module XsdReader
-  class Import
+  class Import < BaseObject
     include Shared
 
     def namespace

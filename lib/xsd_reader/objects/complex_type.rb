@@ -1,5 +1,5 @@
 module XsdReader
-  class ComplexType
+  class ComplexType < BaseObject
     include Shared
 
     def elements

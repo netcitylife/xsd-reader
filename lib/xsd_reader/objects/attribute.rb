@@ -2,7 +2,7 @@ module XsdReader
   # The attribute element defines an attribute.
   # Parent elements: attributeGroup, schema, complexType, restriction (both simpleContent and complexContent), extension (both simpleContent and complexContent)
   # https://www.w3schools.com/xml/el_attribute.asp
-  class Attribute
+  class Attribute < BaseObject
     include Shared
 
     # Determine if attribute is required

@@ -1,5 +1,5 @@
 module XsdReader
-  class Extension
+  class Extension < BaseObject
     include Shared
 
     def linked_complex_type

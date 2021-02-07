@@ -162,7 +162,7 @@ module XsdReader
     end
 
     def linked_complex_type
-      @linked_complex_type ||= object_by_name('complexType', type)
+      @linked_complex_type ||= object_by_name('complexType', type) if type
     end
 
     def simple_contents
@@ -198,7 +198,7 @@ module XsdReader
     end
 
     def linked_simple_type
-      @linked_simple_type ||= object_by_name('simpleType', type)
+      @linked_simple_type ||= object_by_name('simpleType', type) if type
     end
 
     #

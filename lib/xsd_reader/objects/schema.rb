@@ -7,7 +7,11 @@ module XsdReader
     end
 
     def target_namespace
-      node && node.attributes['targetNamespace'] ? node.attributes['targetNamespace'].value : nil
+      node.attributes['targetNamespace'] ? node.attributes['targetNamespace'].value : nil
+    end
+
+    def target_namespace_prefix
+      namespaces.select { |k, v| v == target_namespace }.keys.first.sub('xmlns:', '')
     end
 
     def namespaces

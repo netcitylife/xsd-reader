@@ -1,17 +1,26 @@
 require 'rest-client'
 
 module XsdReader
+  # The import element is used to add multiple schemas with different target namespace to a document.
+  # Parent elements: schema
+  # https://www.w3schools.com/xml/el_import.asp
   class Import < BaseObject
     include Shared
 
+    # Optional. Specifies the URI of the namespace to import
+    # @return [String]
     def namespace
-      node.attributes['namespace']&.value
+      node['namespace']
     end
 
+    # Optional. Specifies the URI to the schema for the imported namespace
+    # @return [String]
     def schema_location
-      node.attributes['schemaLocation']&.value
+      node['schemaLocation']
     end
 
+    # Get reader for import
+    # @return [XsdReader::XML]
     def reader
       return @reader || options[:reader] if @reader || options[:reader]
       if download_path

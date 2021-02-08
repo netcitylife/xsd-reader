@@ -1,13 +1,18 @@
 module XsdReader
+  # The schema element defines the root element of a schema.
+  # Parent elements: NONE
+  # https://www.w3schools.com/xml/el_schema.asp
   class Schema < BaseObject
     include Shared
 
-    def schema
-      self
+    # Optional. A URI reference of the namespace of this schema
+    # @return [String]
+    def target_namespace
+      node['targetNamespace']
     end
 
-    def target_namespace
-      node.attributes['targetNamespace'] ? node.attributes['targetNamespace'].value : nil
+    def schema
+      self
     end
 
     def target_namespace_prefix
@@ -26,18 +31,8 @@ module XsdReader
       @imports ||= map_children("import")
     end
 
-    def mappable_children(xml_name)
-      result = super
-      result += import_mappable_children(xml_name) if xml_name != 'import'
-      result.to_a
-    end
-
-    def import_mappable_children(xml_name)
-      self.imports.map { |import| import.reader.schema.mappable_children(xml_name) }.flatten
-    end
-
     def import_by_namespace(ns)
-      aliases = [ns, namespaces["xmlns:#{(ns || '').gsub(/^xmlns\:/, '')}"]].compact
+      aliases = [ns, namespaces["xmlns:#{(ns || '').gsub(/^xmlns:/, '')}"]].compact
       imports.find { |import| aliases.include?(import.namespace) }
     end
   end

@@ -25,7 +25,20 @@ module XsdReader
     # Optional. Specifies a unique ID for the element
     # @return [String, nil]
     def id
-      node.attributes['id']&.value
+      node['id']
+    end
+
+    # Optional. Specifies the name of the node. Name and ref attributes cannot both be present
+    # @return [String]
+    def name
+      node['name']
+    end
+
+    # Specifies a built-in data type or a simple/complex type.
+    # The type attribute can only be present when the content does not contain a simpleType/complexType element
+    # @return [String]
+    def type
+      node['type']
     end
 
     #

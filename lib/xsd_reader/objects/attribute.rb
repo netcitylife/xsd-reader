@@ -4,6 +4,7 @@ module XsdReader
   # https://www.w3schools.com/xml/el_attribute.asp
   class Attribute < BaseObject
     include Shared
+    include Referenced
 
     # Determine if attribute is required
     # @return [Boolean]

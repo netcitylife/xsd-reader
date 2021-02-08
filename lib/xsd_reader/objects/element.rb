@@ -5,6 +5,7 @@ module XsdReader
   class Element < BaseObject
     include Shared
     include MinMaxOccurs
+    include Referenced
 
     def elements(opts = {})
       return super if opts[:direct] == true

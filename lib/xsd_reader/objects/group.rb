@@ -6,5 +6,6 @@ module XsdReader
   class Group < BaseObject
     include Shared
     include MinMaxOccurs
+    include Referenced
   end
 end

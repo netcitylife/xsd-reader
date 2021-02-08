@@ -30,29 +30,6 @@ module XsdReader
     #
     # attribute properties
     #
-    def name
-      name_local || name_referenced
-    end
-
-    def name_local
-      node.attributes['name'] ? node.attributes['name'].value : nil
-    end
-
-    def name_referenced
-      referenced_element&.name
-    end
-
-    def ref
-      node.attributes['ref'] ? node.attributes['ref'].value.split(':').last : nil
-    end
-
-    def referenced_element
-      ref && schema ? schema.elements.find { |el| el.name == ref } : nil
-    end
-
-    def type
-      node.attributes['type']&.value || referenced_element&.type
-    end
 
     def type_name
       type ? type.split(':').last : nil

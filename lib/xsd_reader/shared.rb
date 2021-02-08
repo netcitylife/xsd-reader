@@ -100,10 +100,11 @@ module XsdReader
       end.flatten
     end
 
+    # TODO: refactore
     def all_elements
       @all_elements ||= (ordered_elements +
         (linked_complex_type ? linked_complex_type.all_elements : []) +
-        (referenced_element ? referenced_element.all_elements : [])).uniq
+        (node['ref'] ? referenced_element.all_elements : [])).uniq
     end
 
     def child_elements?
@@ -111,8 +112,8 @@ module XsdReader
     end
 
     def attributes
-      @attributes ||= map_children("attribute") #+
-      #(referenced_element ? referenced_element.attributes : [])
+      @attributes ||= map_children("attribute") +
+        (node['ref'] ? referenced_element.attributes : [])
     end
 
     def sequences

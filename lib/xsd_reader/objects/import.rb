@@ -59,7 +59,7 @@ module XsdReader
     private
 
     def download_uri(uri)
-      logger.info "Downloading import schema from (#{uri})"
+      logger.debug("Downloading import schema for namespace '#{namespace}' from '#{uri}'")
       response = RestClient.get uri
       response.body
     end

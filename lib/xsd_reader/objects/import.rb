@@ -16,10 +16,10 @@ module XsdReader
       return @reader || options[:reader] if @reader || options[:reader]
       if download_path
         File.write(download_path, download) unless File.file?(download_path)
-        return @reader = XsdReader::XML.new(:xsd_file => download_path)
+        return @reader = XsdReader::XML.new(:xsd_file => download_path, logger: logger)
       end
 
-      @reader = XsdReader::XML.new(:xsd_xml => download)
+      @reader = XsdReader::XML.new(:xsd_xml => download, logger: logger)
     end
 
     def uri

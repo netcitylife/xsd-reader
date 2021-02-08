@@ -213,54 +213,14 @@ module XsdReader
       schema_node.nil? ? nil : node_to_object(schema_node)
     end
 
-    # def object_by_name(xml_name, name)
-    #   # TODO: add namespace hint, otherwise may get errors in imported schemas
-    #   # find in local schema, then look in imported schemas
-    #   nod = node.xpath("//#{xml_name}[@name=\"#{name}\"]").first
-    #   return node_to_object(nod) if nod
-    #
-    #   # try to find in any of the importers
-    #   self.schema.imports.each do |import|
-    #     obj = import.reader.schema.object_by_name(xml_name, name)
-    #     return obj if obj
-    #   end
-    #
-    #   nil
-    # end
-
-    # @param [String] node_name
-    # @param [String] name
-    # @return [BaseObject, nil]
-    def object_by_name(node_name, name)
-      node_name = prepend_namespace(node_name)
-
-      # get search schema
-      if name.include?(':')
-        prefix, local_name = name.split(':')
-        search_schema = schema_for_namespace(prefix)
-        return nil unless search_schema
-      else
-        local_name = name
-        search_schema = schema
-      end
-
-      prefix = schema_namespace_prefix[0..-2]
-      namespace = node.namespaces["xmlns#{prefix == '' ? '' : ":#{prefix}"}"]
-
-      nod = search_schema.node.xpath("//#{node_name}[@name=\"#{local_name}\"]", { prefix => namespace }).first
-      nod ? search_schema.node_to_object(nod) : nil
-    end
-
     def schema_for_namespace(ns)
-      logger.debug "Shared#schema_for_namespace with namespace: #{ns}"
       return schema if schema.targets_namespace?(ns)
 
       if import = schema.import_by_namespace(ns)
-        logger.debug "Shared#schema_for_namespace found import schema"
         return import.reader.schema
       end
 
-      logger.debug "Shared#schema_for_namespace no result"
+      logger.debug "Schema not found for namespace prefix '#{ns}'"
       nil
     end
   end

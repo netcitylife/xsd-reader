@@ -7,6 +7,8 @@ module XsdReader
       @schema_namespace_prefix ||= [(self.node.namespaces || {}).detect { |ns| ns[1] =~ /XMLSchema/ }.first.split(':')[1], nil].uniq.join(':')
     end
 
+    # Get element by path
+    # @return [Element, nil]
     def [](*args)
       # now name is always an array
       names = args.flatten

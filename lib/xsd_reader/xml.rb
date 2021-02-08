@@ -50,7 +50,8 @@ module XsdReader
       @schema ||= Schema.new(self.options.merge(:node => schema_node, :logger => logger))
     end
 
-    # forwards most functions to schema
+    # Get element by path
+    # @return [XsdReader::Element, nil]
     def [](*args)
       schema[*args]
     end

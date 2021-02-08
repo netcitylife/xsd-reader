@@ -18,9 +18,10 @@ module XsdReader
       @union ||= map_children('union').first
     end
 
-    # TODO: add support for list
-    # def list
-    #
-    # end
+    # Get nested list
+    def list
+      # TODO: add support
+      nil
+    end
   end
 end

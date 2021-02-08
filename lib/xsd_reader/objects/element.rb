@@ -43,7 +43,7 @@ module XsdReader
     # Optional. Specifies a fixed value for the element (can only be used if the element's content is a simple type or text only)
     # @return [String, nil]
     def fixed
-      node.attributes['fixed']&.value
+      node['fixed']
     end
 
     def family_tree(stack = [])
@@ -62,7 +62,7 @@ module XsdReader
       end
 
       @_cached_family_tree = result if stack == [] # only cache if this was the first one called (otherwise there will be way too many caches)
-      return result
+      result
     end
-  end # class Element
-end # module XsdReader
+  end
+end

@@ -27,7 +27,7 @@ module XsdReader
     # Optional. Specifies a fixed value for the attribute. Default and fixed attributes cannot both be present
     # @return [String]
     def fixed
-      node.attributes['fixed']&.value
+      node['fixed']
     end
 
     # Optional. Specifies how the attribute is used. Can be one of the following values:
@@ -36,7 +36,7 @@ module XsdReader
     #     required - the attribute is required
     # @return [String]
     def use
-      node.attributes['use']&.value || 'optional'
+      node['use'] || 'optional'
     end
   end
 end

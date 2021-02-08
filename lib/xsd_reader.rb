@@ -1,6 +1,7 @@
 require 'xsd_reader/base_object'
 require 'xsd_reader/shared'
 require 'xsd_reader/shared/min_max_occurs'
+require 'xsd_reader/shared/referenced'
 require 'xsd_reader/xml'
 require 'xsd_reader/objects/schema'
 require 'xsd_reader/objects/element'

@@ -53,5 +53,17 @@ module XsdReader
 
       class_mapping[n.is_a?(Nokogiri::XML::Node) ? n.name : n]
     end
+
+    # Получить объект ридера для XML ноды
+    # @param [Nokogiri::XML::Node]
+    # @return [BasicObject, nil]
+    def node_to_object(node)
+      # TODO: хранить соответствие ноды и объекта и возвращать уже созданные объекты при повторном запросе
+      # if node
+
+      fullname = [node.namespace ? node.namespace.prefix : nil, node.name].reject { |str| str.nil? || str == '' }.join(':')
+      klass    = class_for(fullname)
+      klass.nil? ? nil : klass.new(options.merge(node: node, schema: schema))
+    end
   end
 end

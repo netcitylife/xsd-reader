@@ -90,13 +90,6 @@ module XsdReader
       doc.empty? ? nil : doc
     end
 
-    # TODO: хранить соответствие ноды и объекта и возвращать уже созданные объекты при повторном запросе
-    def node_to_object(node)
-      fullname = [node.namespace ? node.namespace.prefix : nil, node.name].reject { |str| str.nil? || str == '' }.join(':')
-      klass    = class_for(fullname)
-      klass.nil? ? nil : klass.new(options.merge(node: node, schema: schema))
-    end
-
     #
     # Child objects
     #
@@ -255,7 +248,7 @@ module XsdReader
       namespace = node.namespaces["xmlns#{prefix == '' ? '' : ":#{prefix}"}"]
 
       nod = search_schema.node.xpath("//#{node_name}[@name=\"#{local_name}\"]", { prefix => namespace }).first
-      nod ? node_to_object(nod) : nil
+      nod ? search_schema.node_to_object(nod) : nil
     end
 
     def schema_for_namespace(ns)

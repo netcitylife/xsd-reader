@@ -46,22 +46,23 @@ module XsdReader
     #
     def class_for(n)
       class_mapping = {
-        "#{schema_namespace_prefix}schema"         => Schema,
-        "#{schema_namespace_prefix}element"        => Element,
-        "#{schema_namespace_prefix}attribute"      => Attribute,
-        "#{schema_namespace_prefix}choice"         => Choice,
-        "#{schema_namespace_prefix}complexType"    => ComplexType,
-        "#{schema_namespace_prefix}sequence"       => Sequence,
-        "#{schema_namespace_prefix}simpleContent"  => SimpleContent,
-        "#{schema_namespace_prefix}complexContent" => ComplexContent,
-        "#{schema_namespace_prefix}extension"      => Extension,
-        "#{schema_namespace_prefix}import"         => Import,
-        "#{schema_namespace_prefix}simpleType"     => SimpleType,
-        "#{schema_namespace_prefix}all"            => All,
-        "#{schema_namespace_prefix}restriction"    => Restriction,
-        "#{schema_namespace_prefix}group"          => Group,
-        "#{schema_namespace_prefix}any"            => Any,
-        "#{schema_namespace_prefix}union"          => Union,
+        "#{schema_namespace_prefix}schema"          => Schema,
+        "#{schema_namespace_prefix}element"         => Element,
+        "#{schema_namespace_prefix}attribute"       => Attribute,
+        "#{schema_namespace_prefix}choice"          => Choice,
+        "#{schema_namespace_prefix}complexType"     => ComplexType,
+        "#{schema_namespace_prefix}sequence"        => Sequence,
+        "#{schema_namespace_prefix}simpleContent"   => SimpleContent,
+        "#{schema_namespace_prefix}complexContent"  => ComplexContent,
+        "#{schema_namespace_prefix}extension"       => Extension,
+        "#{schema_namespace_prefix}import"          => Import,
+        "#{schema_namespace_prefix}simpleType"      => SimpleType,
+        "#{schema_namespace_prefix}all"             => All,
+        "#{schema_namespace_prefix}restriction"     => Restriction,
+        "#{schema_namespace_prefix}group"           => Group,
+        "#{schema_namespace_prefix}any"             => Any,
+        "#{schema_namespace_prefix}union"           => Union,
+        "#{schema_namespace_prefix}attribute_group" => AttributeGroup,
       }
 
       class_mapping[n.is_a?(Nokogiri::XML::Node) ? n.name : n]
@@ -77,8 +78,8 @@ module XsdReader
       if name.include?(':')
         name_prefix, name_local = name.split(':')
       else
-        name_prefix     = ''
-        name_local = name
+        name_prefix = ''
+        name_local  = name
       end
 
       # do not search in http://www.w3.org/2001/XMLSchema
@@ -91,7 +92,7 @@ module XsdReader
 
       # find element in target schema
       namespace = { 'xs' => 'http://www.w3.org/2001/XMLSchema' }
-      result = search_schema.node.xpath("//xs:#{node_name}[@name=\"#{name_local}\"]", namespace).first
+      result    = search_schema.node.xpath("//xs:#{node_name}[@name=\"#{name_local}\"]", namespace).first
 
       result ? search_schema.node_to_object(result) : nil
     end

@@ -4,7 +4,9 @@ module XsdReader
   # https://www.w3schools.com/xml/el_restriction.asp
   class Restriction < BaseObject
     include Shared
+    include Based
 
+    # TODO: restriction сейчас обрабатывается только внутри simpleType
     def restrictions
       nodes.inject({}) do |hash, node|
         key   = node.name

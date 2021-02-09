@@ -41,19 +41,6 @@ module XsdReader
       type ? type.split(':').first : nil
     end
 
-    # extension and restriction base type
-    def base
-      node.attributes['base']&.value
-    end
-
-    def base_name
-      base ? base.split(':').last : nil
-    end
-
-    def base_namespace
-      base ? base.split(':').first : nil
-    end
-
     # Return element documentation
     # @return [String]
     def documentation
@@ -113,11 +100,6 @@ module XsdReader
       elements.length > 0
     end
 
-    def attributes
-      @attributes ||= map_children("attribute") +
-        (node['ref'] ? referenced_object.attributes : [])
-    end
-
     def sequences
       @sequences ||= map_children("sequence")
     end
@@ -136,30 +118,6 @@ module XsdReader
 
     def linked_complex_type
       @linked_complex_type ||= object_by_name('complexType', type) if type
-    end
-
-    def simple_contents
-      @simple_contents ||= map_children("simpleContent")
-    end
-
-    def simple_content
-      simple_contents.first
-    end
-
-    def complex_contents
-      @complex_contents ||= map_children("complexContent")
-    end
-
-    def complex_content
-      complex_contents.first
-    end
-
-    def extensions
-      @extensions ||= map_children("extension")
-    end
-
-    def extension
-      extensions.first
     end
 
     def simple_types

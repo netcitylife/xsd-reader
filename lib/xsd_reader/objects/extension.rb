@@ -1,17 +1,9 @@
 module XsdReader
+  # The extension element extends an existing simpleType or complexType element.
+  # Parent elements: simpleContent, complexContent
+  # https://www.w3schools.com/xml/el_extension.asp
   class Extension < BaseObject
     include Shared
-
-    def base
-      node['base']
-    end
-
-    def linked_complex_type
-      @linked_complex_type ||= object_by_name('complexType', base) if base
-    end
-
-    def nested_elements
-      (linked_complex_type&.nested_elements || []) + super
-    end
+    include Based
   end
 end

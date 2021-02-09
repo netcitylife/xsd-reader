@@ -12,8 +12,10 @@ module XsdReader
       all_elements
     end
 
+    # Get all attributes available on element
+    # @return [Array<Attribute>]
     def attributes
-      @_element_attributes ||= super + (complex_type ? complex_type.attributes : [])
+      @attributes ||= complex_type&.attributes || []
     end
 
     def complex_type

@@ -12,7 +12,7 @@ module XsdReader
     # Get base name without namespace prefix
     # @return [String, nil]
     def base_name
-      base&.include?(':') ? base.split(':').last : nil
+      base&.include?(':') ? base.split(':').last : base
     end
 
     # Get base namespace prefix

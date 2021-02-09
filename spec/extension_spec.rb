@@ -21,9 +21,9 @@ describe XsdReader::Extension do
     end
   end
 
-  describe "#ordered_elements" do
+  describe "#nested_elements" do
     it "includes elements at the start from imported linked comlex type" do
-      expect(extension.ordered_elements.map(&:name)).to eq ["TerritoryCode", "ExcludedTerritoryCode", "Title", "DisplayArtist", "ResourceContributor", "IndirectResourceContributor", "RightsAgreementId", "LabelName", "RightsController", "RemasteredDate", "OriginalResourceReleaseDate", "PLine", "CourtesyLine", "SequenceNumber", "HostSoundCarrier", "MarketingComment", "Genre", "ParentalWarningType", "AvRating", "TechnicalSoundRecordingDetails", "FulfillmentDate", "Keywords", "Synopsis"]
+      expect(extension.nested_elements.map(&:name)).to eq ["TerritoryCode", "ExcludedTerritoryCode", "Title", "DisplayArtist", "ResourceContributor", "IndirectResourceContributor", "RightsAgreementId", "LabelName", "RightsController", "RemasteredDate", "OriginalResourceReleaseDate", "PLine", "CourtesyLine", "SequenceNumber", "HostSoundCarrier", "MarketingComment", "Genre", "ParentalWarningType", "AvRating", "TechnicalSoundRecordingDetails", "FulfillmentDate", "Keywords", "Synopsis"]
     end
   end
 

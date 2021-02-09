@@ -72,7 +72,6 @@ module XsdReader
     # @param [String] name
     # @return [BaseObject, nil]
     def object_by_name(node_name, name)
-      node_name = prepend_namespace(node_name)
 
       # get prefix and local name
       if name.include?(':')
@@ -91,8 +90,8 @@ module XsdReader
       return nil unless search_schema
 
       # find element in target schema
-      namespace = node.namespaces["xmlns#{schema_prefix == '' ? '' : ":#{schema_prefix}"}"]
-      result = search_schema.node.xpath("//#{node_name}[@name=\"#{name_local}\"]", { schema_prefix => namespace }).first
+      namespace = { 'xs' => 'http://www.w3.org/2001/XMLSchema' }
+      result = search_schema.node.xpath("//xs:#{node_name}[@name=\"#{name_local}\"]", namespace).first
 
       result ? search_schema.node_to_object(result) : nil
     end

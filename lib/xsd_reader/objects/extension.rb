@@ -2,12 +2,16 @@ module XsdReader
   class Extension < BaseObject
     include Shared
 
-    def linked_complex_type
-      @linked_complex_type ||= (schema_for_namespace(base_namespace) || schema).complex_types.find { |ct| ct.name == base_name }
+    def base
+      node['base']
     end
 
-    def ordered_elements
-      (linked_complex_type&.ordered_elements || []) + super
+    def linked_complex_type
+      @linked_complex_type ||= object_by_name('complexType', base) if base
+    end
+
+    def nested_elements
+      (linked_complex_type&.nested_elements || []) + super
     end
   end
 end

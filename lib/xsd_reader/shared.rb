@@ -73,7 +73,7 @@ module XsdReader
     # Child objects
     #
 
-    def prepend_namespace name
+    def prepend_namespace(name)
       name =~ /^#{schema_namespace_prefix}/ ? name : "#{schema_namespace_prefix}#{name}"
     end
 
@@ -86,27 +86,27 @@ module XsdReader
       mappable_children(xml_name).map { |current_node| node_to_object(current_node) }
     end
 
-    def direct_elements
-      @direct_elements ||= map_children("element")
-    end
-
     def elements
       direct_elements
     end
 
-    def ordered_elements
+    # Get all direct child elements
+    def direct_elements
+      @direct_elements ||= map_children("element")
+    end
+
+    # Get all nested elements
+    def nested_elements
       # loop over each interpretable child xml node, and if we can convert a child node
       # to an XsdReader object, let it give its compilation of all_elements
       nodes.map { |node| node_to_object(node) }.compact.map do |obj|
-        obj.is_a?(Element) ? obj : obj.ordered_elements
+        obj.is_a?(Element) ? obj : obj.nested_elements
       end.flatten
     end
 
-    # TODO: refactore
+    # Get all elements, including
     def all_elements
-      @all_elements ||= (ordered_elements +
-        (linked_complex_type ? linked_complex_type.all_elements : []) +
-        (node['ref'] ? referenced_element.all_elements : [])).uniq
+      @all_elements ||= nested_elements + (linked_complex_type&.all_elements || [])
     end
 
     def child_elements?
@@ -115,7 +115,7 @@ module XsdReader
 
     def attributes
       @attributes ||= map_children("attribute") +
-        (node['ref'] ? referenced_element.attributes : [])
+        (node['ref'] ? referenced_object.attributes : [])
     end
 
     def sequences
@@ -131,7 +131,7 @@ module XsdReader
     end
 
     def complex_type
-      complex_types.first || linked_complex_type || referenced_element&.complex_type
+      complex_types.first || linked_complex_type || referenced_object&.complex_type
     end
 
     def linked_complex_type
@@ -167,7 +167,7 @@ module XsdReader
     end
 
     def simple_type
-      simple_types.first || linked_simple_type || referenced_element&.simple_type
+      simple_types.first || linked_simple_type || referenced_object&.simple_type
     end
 
     def linked_simple_type

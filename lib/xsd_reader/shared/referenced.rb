@@ -8,16 +8,20 @@ module XsdReader
       node['ref']
     end
 
-    def referenced_element
-      @referenced_element ||= object_by_name(self.class.name.split('::').last.downcase, ref) if ref
+    def referenced_object
+      @referenced_object ||= object_by_name(self.class.name.split('::').last.downcase, ref) if ref
+    end
+
+    def all_elements
+      referenced_object ? referenced_object.all_elements : super
     end
 
     def name
-      super || referenced_element&.name
+      super || referenced_object&.name
     end
 
     def type
-      super || referenced_element&.type
+      super || referenced_object&.type
     end
   end
 end

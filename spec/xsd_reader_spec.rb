@@ -208,11 +208,11 @@ describe XsdReader do
       reader['Album', 'Tracks', 'Track', 'Contributors', 'Contributor']
     }
 
-    describe '#referenced_element' do
+    describe '#referenced_object' do
       it 'gives the referenced element' do
-        expect(element.referenced_element.class).to eq XsdReader::Element
-        expect(element.referenced_element.name).to eq 'Contributor'
-        expect(element.referenced_element).to_not eq element
+        expect(element.referenced_object.class).to eq XsdReader::Element
+        expect(element.referenced_object.name).to eq 'Contributor'
+        expect(element.referenced_object).to_not eq element
       end
     end
 

@@ -65,7 +65,7 @@ module XsdReader
     end
 
     def mappable_children(xml_name)
-      node.xpath("./#{prepend_namespace(xml_name)}").to_a
+      node.xpath("./xs:#{xml_name}", { 'xs' => 'http://www.w3.org/2001/XMLSchema' }).to_a
     end
 
     def map_children(xml_name)

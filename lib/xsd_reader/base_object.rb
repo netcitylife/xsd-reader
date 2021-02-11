@@ -63,6 +63,7 @@ module XsdReader
         "#{schema_namespace_prefix}any"             => Any,
         "#{schema_namespace_prefix}union"           => Union,
         "#{schema_namespace_prefix}attribute_group" => AttributeGroup,
+        "#{schema_namespace_prefix}list"            => List,
       }
 
       class_mapping[n.is_a?(Nokogiri::XML::Node) ? n.name : n]
@@ -107,6 +108,18 @@ module XsdReader
       fullname = [node.namespace ? node.namespace.prefix : nil, node.name].reject { |str| str.nil? || str == '' }.join(':')
       klass    = class_for(fullname)
       klass.nil? ? nil : klass.new(options.merge(node: node, schema: schema))
+    end
+
+    def mappable_children(xml_name)
+      node.xpath("./xs:#{xml_name}", { 'xs' => 'http://www.w3.org/2001/XMLSchema' }).to_a
+    end
+
+    def map_children(xml_name)
+      mappable_children(xml_name).map { |current_node| node_to_object(current_node) }
+    end
+
+    def map_child(xml_name)
+      map_children(xml_name).first
     end
   end
 end

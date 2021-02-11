@@ -64,15 +64,6 @@ module XsdReader
       name =~ /^#{schema_namespace_prefix}/ ? name : "#{schema_namespace_prefix}#{name}"
     end
 
-    def mappable_children(xml_name)
-      node.xpath("./xs:#{xml_name}", { 'xs' => 'http://www.w3.org/2001/XMLSchema' }).to_a
-    end
-
-    def map_children(xml_name)
-      # puts "Map Children with #{xml_name} for #{self.class}"
-      mappable_children(xml_name).map { |current_node| node_to_object(current_node) }
-    end
-
     def elements
       direct_elements
     end

@@ -7,21 +7,27 @@ module XsdReader
     include Shared
 
     # Get nested restriction
-    # @return [XsdReader::Restriction, nil]
+    # @return [Restriction, nil]
     def restriction
-      @restriction ||= map_children('restriction').first
+      @restriction ||= map_child('restriction')
     end
 
     # Get nested union
-    # @return [XsdReader::Union, nil]
+    # @return [Union, nil]
     def union
-      @union ||= map_children('union').first
+      @union ||= map_child('union')
     end
 
     # Get nested list
+    # @return [List, nil]
     def list
-      # TODO: add support
-      nil
+      @list ||= map_child('list')
+    end
+
+    # Determine if this is a linked type
+    # @return [Boolean]
+    def linked?
+      !name.nil?
     end
   end
 end

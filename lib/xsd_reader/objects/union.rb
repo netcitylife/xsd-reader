@@ -8,14 +8,14 @@ module XsdReader
     # Optional. Specifies a list of built-in data types or simpleType elements defined in a schema
     # @return [Array<String>]
     def member_types
-      node.attributes['memberTypes']&.value&.split(' ') || []
+      node['memberTypes']&.split(' ') || []
     end
 
-    # Get simple types that union points to
-    # @return [Array<XsdReader::SimpleType>]
-    def linked_simple_types
-      @linked_simple_types ||= member_types.map do |name|
-        object_by_name('simpleType', name)
+    # Get nested simple types
+    # @return [Array<SimpleType, String>]
+    def types
+      @types ||= map_children("simpleType") + member_types.map do |name|
+        object_by_name('simpleType', name) || name
       end
     end
   end

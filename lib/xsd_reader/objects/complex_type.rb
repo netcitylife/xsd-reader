@@ -65,6 +65,12 @@ module XsdReader
       end
     end
 
+    # Determine if this is a linked type
+    # @return [Boolean]
+    def linked?
+      !name.nil?
+    end
+
     def elements
       all_elements
     end

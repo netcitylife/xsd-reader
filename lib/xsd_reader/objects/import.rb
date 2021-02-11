@@ -28,7 +28,12 @@ module XsdReader
         return @reader = XsdReader::XML.new(:xsd_file => download_path, logger: logger)
       end
 
-      @reader = XsdReader::XML.new(:xsd_xml => download, logger: logger)
+      xml = if options[:xsd_imported_xml] && options[:xsd_imported_xml][schema_location]
+              options[:xsd_imported_xml][schema_location]
+            else
+              download
+            end
+      @reader = XsdReader::XML.new(xsd_xml: xml, xsd_imported_xml: options[:xsd_imported_xml], logger: logger)
     end
 
     def uri

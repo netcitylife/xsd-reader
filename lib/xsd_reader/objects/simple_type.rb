@@ -27,6 +27,7 @@ module XsdReader
     # Determine if this is a linked type
     # @return [Boolean]
     def linked?
+      # TODO: possibly additional check parent for type attribute
       !name.nil?
     end
   end

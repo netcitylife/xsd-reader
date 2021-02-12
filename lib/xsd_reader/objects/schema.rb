@@ -32,14 +32,16 @@ module XsdReader
       @imports ||= map_children("import")
     end
 
-    def mappable_children(xml_name)
-      result = super
-      result += import_mappable_children(xml_name) if xml_name != 'import'
-      result.to_a
+    # Override map_children on schema to get objects from all imported schemas
+    # @param [String] xml_name
+    # @return []
+    def map_children(xml_name)
+      super + import_map_children(xml_name)
     end
 
-    def import_mappable_children(xml_name)
-      self.imports.map { |import| import.reader.schema.mappable_children(xml_name) }.flatten
+    def import_map_children(xml_name)
+      return [] if xml_name == 'import'
+      imports.map { |import| import.reader.schema.map_children(xml_name) }.flatten
     end
 
     def import_by_namespace(ns)

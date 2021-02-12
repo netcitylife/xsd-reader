@@ -64,6 +64,9 @@ module XsdReader
         "#{schema_namespace_prefix}union"           => Union,
         "#{schema_namespace_prefix}attribute_group" => AttributeGroup,
         "#{schema_namespace_prefix}list"            => List,
+        "#{schema_namespace_prefix}unique"          => Unique,
+        "#{schema_namespace_prefix}selector"        => Selector,
+        "#{schema_namespace_prefix}field"           => Field,
       }
 
       class_mapping[n.is_a?(Nokogiri::XML::Node) ? n.name : n]

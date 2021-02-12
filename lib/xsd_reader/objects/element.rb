@@ -60,6 +60,12 @@ module XsdReader
       node['fixed']
     end
 
+    # Get nested unique objects
+    # @return [Array<Unique>]
+    def unique
+      @unique ||= map_children('unique')
+    end
+
     def family_tree(stack = [])
       logger.warn('Usage of the family tree function is not recommended as it can take very long to execute and is very memory intensive')
       return @_cached_family_tree if @_cached_family_tree

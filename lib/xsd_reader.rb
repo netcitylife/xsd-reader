@@ -24,4 +24,7 @@ require 'xsd_reader/objects/any'
 require 'xsd_reader/objects/union'
 require 'xsd_reader/objects/attribute_group'
 require 'xsd_reader/objects/list'
+require 'xsd_reader/objects/unique'
+require 'xsd_reader/objects/selector'
+require 'xsd_reader/objects/field'
 

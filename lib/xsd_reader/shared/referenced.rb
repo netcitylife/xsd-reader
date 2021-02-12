@@ -16,6 +16,10 @@ module XsdReader
       referenced_object ? referenced_object.all_elements : super
     end
 
+    def nested_elements
+      referenced_object ? referenced_object.nested_elements : super
+    end
+
     def attributes
       referenced_object ? referenced_object.attributes : super
     end

@@ -7,13 +7,18 @@ module XsdReader
     include Based
     include SimpleTyped
 
-    # TODO: restriction сейчас обрабатывается только внутри simpleType
+    FACET_ELEMENTS = %w[
+      minExclusive minInclusive maxExclusive maxInclusive totalDigits
+      fractionDigits length minLength maxLength enumeration whiteSpace pattern
+    ].freeze
+
     # Get restriction facets
     # @return [Hash]
     def facets
       nodes.inject({}) do |hash, node|
+        next unless FACET_ELEMENTS.include?(node.name)
         key   = node.name
-        value = node.attributes['value'].value
+        value = node['value']
 
         if key == 'enumeration'
           hash[key]        ||= {}
@@ -30,53 +35,5 @@ module XsdReader
     def link_attribute
       nil
     end
-
-    # def fraction_digits
-    #
-    # end
-    #
-    # def enumeration
-    #
-    # end
-    #
-    # def max_exclusive
-    #
-    # end
-    #
-    # def min_exclusive
-    #
-    # end
-    #
-    # def max_inclusive
-    #
-    # end
-    #
-    # def min_inclusive
-    #
-    # end
-    #
-    # def length
-    #
-    # end
-    #
-    # def max_length
-    #
-    # end
-    #
-    # def min_length
-    #
-    # end
-    #
-    # def pattern
-    #
-    # end
-    #
-    # def total_digits
-    #
-    # end
-    #
-    # def white_space
-    #
-    # end
   end
 end

@@ -5,6 +5,7 @@ module XsdReader
   class Restriction < BaseObject
     include Shared
     include Based
+    include SimpleTyped
 
     # TODO: restriction сейчас обрабатывается только внутри simpleType
     def restrictions
@@ -20,6 +21,12 @@ module XsdReader
         end
         hash
       end
+    end
+
+    private
+
+    def link_attribute
+      nil
     end
 
     # def fraction_digits

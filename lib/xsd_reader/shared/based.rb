@@ -22,15 +22,23 @@ module XsdReader
     end
 
     # Get linked complexType
+    # @deprecated
     # @return [ComplexType, nil]
     def linked_complex_type
       @linked_complex_type ||= object_by_name('complexType', base) if base
     end
 
     # Get linked simpleType
+    # @deprecated
     # @return [SimpleType, nil]
     def linked_simple_type
       @linked_simple_type ||= object_by_name('simpleType', base) if base
+    end
+
+    # Get linked simpleType
+    # @return [SimpleType, nil]
+    def base_simple_type
+      @base_simple_type ||= object_by_name('simpleType', base) if base
     end
 
     # Get all attributes defined by type

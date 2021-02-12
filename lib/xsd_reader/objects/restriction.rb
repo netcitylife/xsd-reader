@@ -8,7 +8,9 @@ module XsdReader
     include SimpleTyped
 
     # TODO: restriction сейчас обрабатывается только внутри simpleType
-    def restrictions
+    # Get restriction facets
+    # @return [Hash]
+    def facets
       nodes.inject({}) do |hash, node|
         key   = node.name
         value = node.attributes['value'].value

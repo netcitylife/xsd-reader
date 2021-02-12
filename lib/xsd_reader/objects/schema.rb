@@ -16,6 +16,7 @@ module XsdReader
     end
 
     def target_namespace_prefix
+      return nil unless target_namespace
       namespaces.select { |k, v| v == target_namespace }.keys.first.sub('xmlns:', '')
     end
 

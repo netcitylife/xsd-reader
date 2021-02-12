@@ -28,6 +28,7 @@ module XsdReader
     end
 
     def schema_node
+      raise Error, 'Document root not found, provided document does not seem to be a valid XSD' unless doc.root
       doc.root.name == 'schema' ? doc.root : nil
     end
 
@@ -56,5 +57,8 @@ module XsdReader
     def schema_for_namespace(_ns)
       schema.schema_for_namespace(_ns)
     end
+  end
+
+  class Error < StandardError
   end
 end

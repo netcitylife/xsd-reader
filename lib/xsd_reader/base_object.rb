@@ -124,6 +124,7 @@ module XsdReader
       mappable_children(xml_name).map { |current_node| node_to_object(current_node) }
     end
 
+    # @return [BaseObject]
     def map_child(xml_name)
       map_children(xml_name).first
     end

@@ -98,7 +98,7 @@ module XsdReader
       result ? search_schema.node_to_object(result) : nil
     end
 
-    # Получить объект ридера для XML ноды
+    # Get reader object for node
     # @param [Nokogiri::XML::Node]
     # @return [BasicObject, nil]
     def node_to_object(node)
@@ -108,6 +108,12 @@ module XsdReader
       fullname = [node.namespace ? node.namespace.prefix : nil, node.name].reject { |str| str.nil? || str == '' }.join(':')
       klass    = class_for(fullname)
       klass.nil? ? nil : klass.new(options.merge(node: node, schema: schema))
+    end
+
+    # Get xml parent object
+    # @return [self, nil]
+    def parent
+      node.respond_to?(:parent) && node.parent ? node_to_object(node.parent) : nil
     end
 
     def mappable_children(xml_name)

@@ -127,15 +127,6 @@ module XsdReader
     # Related objects
     #
 
-    def parent
-      if node && node.respond_to?(:parent) && node.parent
-
-        return node_to_object(node.parent)
-      end
-
-      nil
-    end
-
     def schema
       return options[:schema] if options[:schema]
       schema_node = node.xpath("//#{schema_namespace_prefix}schema")[0]

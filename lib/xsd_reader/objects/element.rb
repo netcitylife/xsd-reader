@@ -47,8 +47,8 @@ module XsdReader
       obj = self
       loop do
         parent = obj.parent
-        return true if p.is_a?(Choice)
-        break if p.is_a?(ComplexType) || p.is_a?(Schema)
+        return true if parent.is_a?(Choice)
+        break if parent.is_a?(ComplexType) || parent.is_a?(Schema)
         obj = parent
       end
       false

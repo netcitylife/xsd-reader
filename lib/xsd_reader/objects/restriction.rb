@@ -16,15 +16,16 @@ module XsdReader
     # @return [Hash]
     def facets
       nodes.inject({}) do |hash, node|
-        next unless FACET_ELEMENTS.include?(node.name)
-        key   = node.name
-        value = node['value']
+        if FACET_ELEMENTS.include?(node.name)
+          key   = node.name
+          value = node['value']
 
-        if key == 'enumeration'
-          hash[key]        ||= {}
-          hash[key][value] = documentation_for(node)
-        else
-          hash[key] = value
+          if key == 'enumeration'
+            hash[key]        ||= {}
+            hash[key][value] = documentation_for(node)
+          else
+            hash[key] = value
+          end
         end
         hash
       end

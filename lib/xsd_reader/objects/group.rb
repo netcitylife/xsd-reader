@@ -4,7 +4,6 @@ module XsdReader
   # extension (both simpleContent and complexContent)
   # https://www.w3schools.com/xml/el_group.asp
   class Group < BaseObject
-    include Shared
     include MinMaxOccurs
     include Referenced
 

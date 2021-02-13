@@ -4,13 +4,10 @@ module XsdReader
   # Parent elements: key, keyref, unique
   # https://www.w3schools.com/xml/el_selector.asp
   class Selector < BaseObject
-    include Shared
 
     # Required. Specifies an XPath expression, relative to the element being declared, that identifies the child
     # elements to which the identity constraint applies
     # @return [String]
-    def xpath
-      node['xpath']
-    end
+    property :xpath, :string
   end
 end

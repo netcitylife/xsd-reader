@@ -5,8 +5,7 @@ module XsdReader
   # extension (both simpleContent and complexContent
   # https://www.w3schools.com/xml/el_attributegroup.asp
   class AttributeGroup < BaseObject
-    include Shared
     include Referenced
-    include Attributed
+    include AttributeContainer
   end
 end

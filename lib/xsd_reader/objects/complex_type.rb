@@ -4,22 +4,17 @@ module XsdReader
   # Parent elements: element, redefine, schema
   # https://www.w3schools.com/xml/el_complextype.asp
   class ComplexType < BaseObject
-    include Shared
-    include Attributed
+    include AttributeContainer
 
     # Optional. Specifies whether the complex type can be used in an instance document. True indicates that an element
     # cannot use this complex type directly but must use a complex type derived from this complex type. Default is false
     # @return [Boolean]
-    def abstract
-      node['abstract'] == 'true'
-    end
+    property :abstract, :boolean, optional: true, default: false
 
     # Optional. Specifies whether character data is allowed to appear between the child elements of this complexType
     # element. Default is false. If a simpleContent element is a child element, the mixed attribute is not allowed!
     # @return [Boolean]
-    def mixed
-      node['mixed'] == 'true'
-    end
+    property :mixed, :boolean, optional: true, default: false
 
     # Optional. Prevents a complex type that has a specified type of derivation from being used in place of this
     # complex type. This value can contain #all or a list that is a subset of extension or restriction:
@@ -27,9 +22,7 @@ module XsdReader
     #   restriction - prevents complex types derived by restriction
     #   #all - prevents all derived complex types
     # @return [String, nil]
-    def block
-      node['block']
-    end
+    property :block, :string, optional: true
 
     # Optional. Prevents a specified type of derivation of this complex type element. Can contain #all or a list
     # that is a subset of extension or restriction.
@@ -37,20 +30,18 @@ module XsdReader
     #   restriction - prevents derivation by restriction
     #   #all - prevents all derivation
     # @return [String, nil]
-    def final
-      node['final']
-    end
+    property :final, :string, optional: true
 
-    # Get simple content object
+    # Simple content object
     # @return [SimpleContent]
     def simple_content
-      @simple_content ||= map_children("simpleContent").first
+      @simple_content ||= map_child("simpleContent")
     end
 
     # Get complex content object
     # @return [ComplexContent]
     def complex_content
-      @complex_content ||= map_children("complexContent").first
+      @complex_content ||= map_child("complexContent")
     end
 
     # Get all attributes defined by type

@@ -3,12 +3,9 @@ module XsdReader
   # Parent elements: key, keyref, unique
   # https://www.w3schools.com/xml/el_field.asp
   class Field < BaseObject
-    include Shared
 
     # Required. Identifies a single element or attribute whose content or value is used for the constraint
     # @return [String]
-    def xpath
-      node['xpath']
-    end
+    property :xpath, :string
   end
 end

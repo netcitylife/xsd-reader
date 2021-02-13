@@ -3,7 +3,6 @@ module XsdReader
   # Parent elements: element
   # https://www.w3schools.com/xml/el_unique.asp
   class Unique < BaseObject
-    include Shared
 
     # Get nested selector object
     # @return [Selector]

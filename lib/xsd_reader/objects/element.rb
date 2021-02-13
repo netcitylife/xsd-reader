@@ -3,30 +3,84 @@ module XsdReader
   # Parent elements: schema, choice, all, sequence, group
   # https://www.w3schools.com/xml/el_element.asp
   class Element < BaseObject
-    include Shared
     include MinMaxOccurs
+    include SimpleTyped
+    include ComplexTyped
     include Referenced
 
-    def elements(opts = {})
-      return super if opts[:direct] == true
-      all_elements
+    # Optional. Specifies either the name of a built-in data type, or the name of a simpleType or complexType element
+    # @return [String, nil]
+    property :type, :string, optional: true
+
+    # Optional. Specifies the name of an element that can be substituted with this element. This attribute cannot be
+    # used if the parent element is not the schema element
+    # @return [String, nil]
+    property :substitutionGroup, :string, optional: true
+
+    # Optional. Specifies a default value for the element (can only be used if the element's content is a simple type
+    # or text only)
+    # @return [String, nil]
+    property :default, :string, optional: true
+
+    # Optional. Specifies a fixed value for the element (can only be used if the element's content is a simple type
+    # or text only)
+    # @return [String, nil]
+    property :fixed, :string, optional: true
+
+    # Optional. Specifies the form for the element. "unqualified" indicates that this element is not required to be
+    # qualified with the namespace prefix. "qualified" indicates that this element must be qualified with the namespace
+    # prefix. The default value is the value of the elementFormDefault attribute of the schema element. This attribute
+    # cannot be used if the parent element is the schema element
+    # @return [String]
+    property :form, :string, optional: true
+
+    # Optional. Specifies whether an explicit null value can be assigned to the element. True enables an instance of
+    # the element to have the null attribute set to true. The null attribute is defined as part of the XML Schema
+    # namespace for instances. Default is false
+    # @return [Boolean]
+    property :nillable, :boolean, optional: true, default: false
+
+    # Optional. Specifies whether the element can be used in an instance document. True indicates that the element
+    # cannot appear in the instance document. Instead, another element whose substitutionGroup attribute contains the
+    # qualified name (QName) of this element must appear in this element's place. Default is false
+    # @return [Boolean]
+    property :abstract, :boolean, optional: true, default: false
+
+    # Optional. Prevents an element with a specified type of derivation from being used in place of this element.
+    # This value can contain #all or a list that is a subset of extension, restriction, or equivClass:
+    #     extension    - prevents elements derived by extension
+    #     restriction  - prevents elements derived by restriction
+    #     substitution - prevents elements derived by substitution
+    #     #all         - prevents all derived elements
+    # @return [String, nil]
+    property :block, :string, optional: true
+
+    # Optional. Sets the default value of the final attribute on the element element. This attribute cannot be used if
+    # the parent element is not the schema element. This value can contain #all or a list that is a subset of extension
+    # or restriction:
+    #     extension   - prevents elements derived by extension
+    #     restriction - prevents elements derived by restriction
+    #     #all        - prevents all derived elements
+    # @return [String, nil]
+    property :final, :string, optional: true
+
+    # Get nested unique objects
+    # @return [Array<Unique>]
+    def unique
+      @unique ||= map_children('unique')
     end
 
     # Get all attributes available on element
     # @return [Array<Attribute>]
-    def attributes
+    def all_attributes
       @attributes ||= complex_type&.attributes || []
-    end
-
-    def complex_type
-      @_element_complex_type ||= super || linked_complex_type
     end
 
     # Determine if element is required
     # TODO: consider parent node group/sequence/choice/all min/max occurs
     # @return [Boolean]
     def required?
-      min_occurs > 0 && !choice?
+      minOccurs > 0 && !choice?
     end
 
     # Determine if element is optional
@@ -39,7 +93,7 @@ module XsdReader
     # TODO: consider parent node group/sequence/choice/all min/max occurs
     # @return [Boolean]
     def multiple_allowed?
-      max_occurs == :unbounded || max_occurs > 1
+      maxOccurs == :unbounded || maxOccurs > 1
     end
 
     # Determine if element is inside choice
@@ -52,37 +106,6 @@ module XsdReader
         obj = parent
       end
       false
-    end
-
-    # Optional. Specifies a fixed value for the element (can only be used if the element's content is a simple type or text only)
-    # @return [String, nil]
-    def fixed
-      node['fixed']
-    end
-
-    # Get nested unique objects
-    # @return [Array<Unique>]
-    def unique
-      @unique ||= map_children('unique')
-    end
-
-    def family_tree(stack = [])
-      logger.warn('Usage of the family tree function is not recommended as it can take very long to execute and is very memory intensive')
-      return @_cached_family_tree if @_cached_family_tree
-
-      if stack.include?(name) # avoid endless recursive loop
-        # logger.debug "Element#family_tree aborting endless recursive loop at element with name: #{name} and element stack: #{stack.inspect}"
-        return nil
-      end
-
-      return "type:#{type_name}" if elements.length == 0
-
-      result = elements.inject({}) do |tree, element|
-        tree.merge element.name => element.family_tree(stack + [name])
-      end
-
-      @_cached_family_tree = result if stack == [] # only cache if this was the first one called (otherwise there will be way too many caches)
-      result
     end
   end
 end

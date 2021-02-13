@@ -5,12 +5,14 @@ module XsdReader
     # Get connected simple type
     # @return [SimpleType, nil]
     def simple_type
-      @simple_type ||= link_attribute ? object_by_name('simpleType', link_attribute) : map_child('simpleType')
+      @simple_type ||= type_attribute ? object_by_name('simpleType', type_attribute) : map_child('simpleType')
     end
 
     private
 
-    def link_attribute
+    # Get type attribute value
+    # @return [String, nil]
+    def type_attribute
       type
     end
   end

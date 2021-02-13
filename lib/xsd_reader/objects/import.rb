@@ -5,31 +5,26 @@ module XsdReader
   # Parent elements: schema
   # https://www.w3schools.com/xml/el_import.asp
   class Import < BaseObject
-    include Shared
 
     # Optional. Specifies the URI of the namespace to import
-    # @return [String]
-    def namespace
-      node['namespace']
-    end
+    # @return [String, nil]
+    property :namespace, :string, optional: true
 
     # Optional. Specifies the URI to the schema for the imported namespace
-    # @return [String]
-    def schema_location
-      node['schemaLocation']
-    end
+    # @return [String, nil]
+    property :schemaLocation, :string, optional: true
 
     # Get reader for import
     # @return [XsdReader::XML]
     def reader
-      return @reader || options[:reader] if @reader || options[:reader]
+      return @reader if @reader
       if download_path
         File.write(download_path, download) unless File.file?(download_path)
         return @reader = XsdReader::XML.new(:xsd_file => download_path, logger: logger)
       end
 
-      xml = if options[:xsd_imported_xml] && options[:xsd_imported_xml][schema_location]
-              options[:xsd_imported_xml][schema_location]
+      xml = if options[:xsd_imported_xml] && options[:xsd_imported_xml][schemaLocation]
+              options[:xsd_imported_xml][schemaLocation]
             else
               download
             end
@@ -39,10 +34,10 @@ module XsdReader
     def uri
       if namespace =~ /\.xsd$/
         namespace
-      elsif schema_location =~ /^https?:/
-        schema_location
+      elsif schemaLocation =~ /^https?:/
+        schemaLocation
       else
-        namespace.gsub(/#{File.basename(schema_location, '.*')}$/, '').to_s + schema_location
+        namespace.gsub(/#{File.basename(schemaLocation, '.*')}$/, '').to_s + schemaLocation
       end
     end
 
@@ -54,7 +49,7 @@ module XsdReader
       # we need the parent XSD's path
       return nil if options[:xsd_file].nil?
       parent_path = File.dirname(options[:xsd_file])
-      File.join(parent_path, File.basename(schema_location))
+      File.join(parent_path, File.basename(schemaLocation))
     end
 
     def local_xml

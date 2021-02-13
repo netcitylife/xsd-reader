@@ -4,7 +4,6 @@ module XsdReader
   # Parent elements: attribute, element, list, restriction, schema, union
   # https://www.w3schools.com/xml/el_simpletype.asp
   class SimpleType < BaseObject
-    include Shared
 
     # Get nested restriction
     # @return [Restriction, nil]

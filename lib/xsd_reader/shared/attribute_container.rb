@@ -1,5 +1,5 @@
 module XsdReader
-  module Attributed
+  module AttributeContainer
 
     # Get nested attribute groups
     # @return [Array<AttributeGroup>]

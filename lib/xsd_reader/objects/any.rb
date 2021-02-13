@@ -3,7 +3,6 @@ module XsdReader
   # Parent elements: choice, sequence
   # https://www.w3schools.com/xml/el_any.asp
   class Any < BaseObject
-    include Shared
     include MinMaxOccurs
 
     # Optional. Specifies the namespaces containing the elements that can be used. Can be set to one of the following:
@@ -13,10 +12,8 @@ module XsdReader
     #     ##targetNamespace - elements from the namespace of the parent element can be present
     #     List of {URI references of namespaces, ##targetNamespace, ##local} - elements from a space-delimited list of
     #     the namespaces can be present
-    # @return [String, nil]
-    def namespace
-      node.attributes['namespace']&.value
-    end
+    # @return [String]
+    property :namespace, :string, optional: true, default: '##any'
 
     # Optional. Specifies how the XML processor should handle validation against the elements specified by this any
     # element. Can be set to one of the following:
@@ -24,8 +21,6 @@ module XsdReader
     #   lax - same as strict but; if the schema cannot be obtained, no errors will occur
     #   skip - The XML processor does not attempt to validate any elements from the specified namespaces
     # @return [String, nil]
-    def process_contents
-      node.attributes['processContents']&.value || 'strict'
-    end
+    property :processContents, :string, optional: true, default: 'strict'
   end
 end

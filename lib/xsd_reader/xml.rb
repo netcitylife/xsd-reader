@@ -2,10 +2,36 @@ require 'nokogiri'
 
 module XsdReader
   class XML
-    attr_reader :options
+    attr_reader :options, :object_cache
 
-    def initialize(opts = {})
-      @options = opts || {}
+    CLASS_MAP = {
+      "schema"         => Schema,
+      "element"        => Element,
+      "attribute"      => Attribute,
+      "choice"         => Choice,
+      "complexType"    => ComplexType,
+      "sequence"       => Sequence,
+      "simpleContent"  => SimpleContent,
+      "complexContent" => ComplexContent,
+      "extension"      => Extension,
+      "import"         => Import,
+      "simpleType"     => SimpleType,
+      "all"            => All,
+      "restriction"    => Restriction,
+      "group"          => Group,
+      "any"            => Any,
+      "union"          => Union,
+      "attributeGroup" => AttributeGroup,
+      "list"           => List,
+      "unique"         => Unique,
+      "selector"       => Selector,
+      "field"          => Field,
+    }.freeze
+
+    def initialize(options = {})
+      @options      = options
+      @object_cache = {}
+
       raise "#{self.class}.new expects a hash parameter" unless @options.is_a?(Hash)
     end
 
@@ -33,11 +59,11 @@ module XsdReader
     end
 
     def schema
-      @schema ||= Schema.new(self.options.merge(:node => schema_node, :logger => logger))
+      @schema ||= Schema.new(self.options.merge(node: schema_node, reader: self))
     end
 
     # Get element by path
-    # @return [XsdReader::Element, nil]
+    # @return [Element, Attribute, nil]
     def [](*args)
       schema[*args]
     end

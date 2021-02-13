@@ -5,18 +5,12 @@ module XsdReader
   # extension (both simpleContent and complexContent)
   # https://www.w3schools.com/xml/el_all.asp
   class All < BaseObject
-    include Shared
+    include ElementContainer
 
     # Optional. Specifies the minimum number of times the element can occur. The value can be 0 or 1. Default value is 1
-    # @return [Integer]
-    def min_occurs
-      node.attributes['minOccurs']&.value&.to_i || 1
-    end
+    property :minOccurs, :integer, optional: true, default: 1
 
     # Optional. Specifies the maximum number of times the element can occur. The value must be 1.
-    # @return [Integer]
-    def max_occurs
-      1
-    end
+    property :maxOccurs, :integer, optional: true, default: 1
   end
 end

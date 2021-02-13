@@ -3,9 +3,9 @@ module XsdReader
   # Parent elements: simpleType, simpleContent, complexContent
   # https://www.w3schools.com/xml/el_restriction.asp
   class Restriction < BaseObject
-    include Shared
     include Based
     include SimpleTyped
+    include ComplexTyped
 
     FACET_ELEMENTS = %w[
       minExclusive minInclusive maxExclusive maxInclusive totalDigits
@@ -33,7 +33,9 @@ module XsdReader
 
     private
 
-    def link_attribute
+    # Get type attribute value
+    # @return [String, nil]
+    def type_attribute
       nil
     end
   end

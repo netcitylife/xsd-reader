@@ -1,75 +1,63 @@
 module XsdReader
+  # Base object
   class BaseObject
+    attr_reader :options, :properties
 
-    attr_reader :options
+    # Optional. Specifies a unique ID for the element
+    property :id, :string, optional: true
 
-    def initialize(opts = {})
-      @options = opts || {}
-      raise "#{self.class}.new expects a hash parameter" unless @options.is_a?(Hash)
-    end
+    # Optional. Specifies the name of the attribute. Name and ref attributes cannot both be present
+    property :name, :string, optional: true
 
-    def logger
-      options[:logger]
+    def initialize(options = {})
+      @options    = options
+      @properties = {}
+
+      raise Error, "#{self.class}.new expects a hash parameter" unless @options.is_a?(Hash)
     end
 
     # Get current XML node
-    # @return Nokogiri::XML::Node
+    # @return [Nokogiri::XML::Node]
     def node
       options[:node]
     end
 
-    def nodes
-      node.xpath("./*")
+    # Get child nodes
+    # @return [Nokogiri::XML::NodeSet]
+    def nodes(name = '*')
+      node.xpath("./xs:#{name}", { 'xs' => 'http://www.w3.org/2001/XMLSchema' })
     end
 
-    # Optional. Specifies a unique ID for the element
-    # @return [String, nil]
-    def id
-      node['id']
+    # Get schema object for specified namespace prefix
+    # @param [String] prefix
+    # @return [Schema]
+    def schema_for_namespace(prefix)
+      if schema.targets_namespace?(prefix)
+        schema
+      elsif (import = schema.import_by_namespace(prefix))
+        import.reader.schema
+      else
+        raise Error, "Schema not found for namespace '#{prefix}' in '#{schema.id || schema.targetNamespace}'"
+      end
     end
 
-    # Optional. Specifies the name of the node. Name and ref attributes cannot both be present
-    # @return [String]
-    def name
-      node['name']
-    end
+    # Get element or attribute by path
+    # @return [Element, Attribute, nil]
+    def [](*args)
+      result = self
 
-    # Specifies a built-in data type or a simple/complex type.
-    # The type attribute can only be present when the content does not contain a simpleType/complexType element
-    # @return [String]
-    def type
-      node['type']
-    end
+      args.flatten.each do |curname|
+        next if result.nil?
+        curname = curname.to_s
 
-    #
-    # Node to class mapping
-    #
-    def class_for(n)
-      class_mapping = {
-        "#{schema_namespace_prefix}schema"          => Schema,
-        "#{schema_namespace_prefix}element"         => Element,
-        "#{schema_namespace_prefix}attribute"       => Attribute,
-        "#{schema_namespace_prefix}choice"          => Choice,
-        "#{schema_namespace_prefix}complexType"     => ComplexType,
-        "#{schema_namespace_prefix}sequence"        => Sequence,
-        "#{schema_namespace_prefix}simpleContent"   => SimpleContent,
-        "#{schema_namespace_prefix}complexContent"  => ComplexContent,
-        "#{schema_namespace_prefix}extension"       => Extension,
-        "#{schema_namespace_prefix}import"          => Import,
-        "#{schema_namespace_prefix}simpleType"      => SimpleType,
-        "#{schema_namespace_prefix}all"             => All,
-        "#{schema_namespace_prefix}restriction"     => Restriction,
-        "#{schema_namespace_prefix}group"           => Group,
-        "#{schema_namespace_prefix}any"             => Any,
-        "#{schema_namespace_prefix}union"           => Union,
-        "#{schema_namespace_prefix}attribute_group" => AttributeGroup,
-        "#{schema_namespace_prefix}list"            => List,
-        "#{schema_namespace_prefix}unique"          => Unique,
-        "#{schema_namespace_prefix}selector"        => Selector,
-        "#{schema_namespace_prefix}field"           => Field,
-      }
+        if curname =~ /^@/
+          result = result.attributes.find { |attr| attr.name == curname.sub(/^@/, '') }
+        else
+          result = result.elements.find { |elem| elem.name == curname }
+        end
+      end
 
-      class_mapping[n.is_a?(Nokogiri::XML::Node) ? n.name : n]
+      result
     end
 
     # Search node by name in all available schemas and return its object
@@ -79,20 +67,15 @@ module XsdReader
     def object_by_name(node_name, name)
 
       # get prefix and local name
-      if name.include?(':')
-        name_prefix, name_local = name.split(':')
-      else
-        name_prefix = ''
-        name_local  = name
-      end
+      name_prefix = get_prefix(name)
+      name_local  = strip_prefix(name)
 
-      # do not search in http://www.w3.org/2001/XMLSchema
-      schema_prefix = schema_namespace_prefix[0..-2]
+      # do not search for built-in types
+      schema_prefix = schema.namespace_prefix[0..-2]
       return nil if schema_prefix == name_prefix
 
       # determine schema for namespace
-      search_schema = schema_for_namespace(name_prefix) || schema
-      return nil unless search_schema
+      search_schema = name_prefix ? schema_for_namespace(name_prefix) : schema
 
       # find element in target schema
       namespace = { 'xs' => 'http://www.w3.org/2001/XMLSchema' }
@@ -103,33 +86,145 @@ module XsdReader
 
     # Get reader object for node
     # @param [Nokogiri::XML::Node]
-    # @return [BasicObject, nil]
+    # @return [BaseObject]
     def node_to_object(node)
-      # TODO: хранить соответствие ноды и объекта и возвращать уже созданные объекты при повторном запросе
-      # if node
+      # check object in cache first
+      # TODO: проверить работу!
+      return reader.object_cache[node.object_id] if reader.object_cache[node.object_id]
 
-      fullname = [node.namespace ? node.namespace.prefix : nil, node.name].reject { |str| str.nil? || str == '' }.join(':')
-      klass    = class_for(fullname)
-      klass.nil? ? nil : klass.new(options.merge(node: node, schema: schema))
+      klass = XML::CLASS_MAP[node.name]
+      raise Error, "Object class not found for '#{node.name}'" unless klass
+
+      reader.object_cache[node.object_id] = klass.new(options.merge(node: node, schema: schema))
     end
 
     # Get xml parent object
-    # @return [self, nil]
+    # @return [BaseObject, nil]
     def parent
       node.respond_to?(:parent) && node.parent ? node_to_object(node.parent) : nil
     end
 
-    def mappable_children(xml_name)
-      node.xpath("./xs:#{xml_name}", { 'xs' => 'http://www.w3.org/2001/XMLSchema' }).to_a
+    # Get current schema object
+    # @return [Schema]
+    def schema
+      options[:schema]
     end
 
-    def map_children(xml_name)
-      mappable_children(xml_name).map { |current_node| node_to_object(current_node) }
+    # Get child objects
+    # @param [String] name
+    # @return [Array<BaseObject>]
+    def map_children(name)
+      nodes(name).map { |node| node_to_object(node) }
     end
 
-    # @return [BaseObject]
-    def map_child(xml_name)
-      map_children(xml_name).first
+    # Get child object
+    # @param [String] name
+    # @return [BaseObject, nil]
+    def map_child(name)
+      map_children(name).first
+    end
+
+    # Strip namespace prefix from node name
+    # @param [String, nil] name Name to strip from
+    # @return [String, nil]
+    def strip_prefix(name)
+      name&.include?(':') ? name.split(':').last : name
+    end
+
+    # Get namespace prefix from node name
+    # @param [String, nil] name Name to strip from
+    # @return [String, nil]
+    def get_prefix(name)
+      name&.include?(':') ? name.split(':').first : name
+    end
+
+    # Return element documentation
+    # @return [Array<String>]
+    def documentation
+      documentation_for(node)
+    end
+
+    # Return documentation for specified node
+    # @param [Nokogiri::Xml::Node] node
+    # @return [Array<String>]
+    def documentation_for(node)
+      node.xpath('./xs:annotation/xs:documentation/text()', { 'xs' => 'http://www.w3.org/2001/XMLSchema' }).map(&:to_s).map(&:strip)
+    end
+
+    def elements
+      direct_elements
+    end
+
+    # Get all direct child elements
+    def direct_elements
+      @direct_elements ||= map_children("element")
+    end
+
+    # Get all nested elements
+    def nested_elements
+      # loop over each interpretable child xml node, and if we can convert a child node
+      # to an XsdReader object, let it give its compilation of all_elements
+      nodes.map { |node| node_to_object(node) }.compact.map do |obj|
+        obj.is_a?(Element) ? obj : obj.nested_elements
+      end.flatten
+    end
+
+    # Get all elements, including
+    def all_elements
+      @all_elements ||= nested_elements + (linked_complex_type&.all_elements || [])
+    end
+
+    protected
+
+    # Define new object property
+    # @param [Symbol] name
+    # @param [Symbol] type
+    # @param [Hash] options
+    def self.property(name, type, options = {}, &block)
+      @properties[name] = {
+        name:    name,
+        type:    type,
+        resolve: block,
+        **options
+      }
+    end
+
+    # Get reader instance
+    # @return [XML]
+    def reader
+      options[:reader]
+    end
+
+    # Get logger instance
+    # @return [Logger]
+    def logger
+      reader.logger
+    end
+
+    private
+
+    # Lookup for properties
+    def method_missing(symbol, *args)
+      property = @properties[symbol]
+
+      if property
+        # call if block was provided
+        return property[:resolve].call if property[:resolve]
+
+        value = node[property[:name]]
+        return property[:default] if value.nil?
+
+        case property[:type]
+        when :integer
+          return property == :maxOccurs && value == 'unbounded' ? :unbounded : value.to_i
+        when :boolean
+          return !!value
+        else
+          return value
+        end
+      end
+
+      raise Error, "Tried to access unknown property #{symbol} on #{self.class.name}"
     end
   end
 end

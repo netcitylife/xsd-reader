@@ -3,17 +3,19 @@ module XsdReader
   # Parent elements: simpleType
   # https://www.w3schools.com/xml/el_list.asp
   class List < BaseObject
-    include Shared
     include SimpleTyped
 
     # Specifies the name of a built-in data type or simpleType element defined in this or another schema.
     # This attribute is not allowed if the content contains a simpleType element, otherwise it is required
-    def item_type
-      node['itemType']
-    end
+    # @return [String, nil]
+    property :itemType, :string, optional: true
 
-    def link_attribute
-      item_type
+    private
+
+    # Get type attribute value
+    # @return [String, nil]
+    def type_attribute
+      itemType
     end
   end
 end

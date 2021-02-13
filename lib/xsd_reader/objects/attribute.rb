@@ -59,5 +59,13 @@ module XsdReader
     def prohibited?
       use == 'prohibited'
     end
+
+    private
+
+    # Get type attribute value
+    # @return [Symbol]
+    def self.type_property
+      :type
+    end
   end
 end

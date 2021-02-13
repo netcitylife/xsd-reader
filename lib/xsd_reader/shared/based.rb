@@ -6,18 +6,18 @@ module XsdReader
     # Required. Specifies the name of a built-in data type, a simpleType element, or a complexType element
     # @!attribute base
     # @return [String]
-    property :base, :string
 
-    # Get linked complexType
+    # Base complexType
+    # @!attribute base_complex_type
     # @return [ComplexType, nil]
-    def base_complex_type
-      @base_complex_type ||= object_by_name('complexType', base)
-    end
 
-    # Get linked simpleType
+    # Base simpleType
+    # @!attribute base_simple_type
     # @return [SimpleType, nil]
-    def base_simple_type
-      @base_simple_type ||= object_by_name('simpleType', base)
+    def self.included(obj)
+      obj.property :base, :string
+      obj.link :base_complex_type, ComplexType, property: :base
+      obj.link :base_simple_type, SimpleType, property: :base
     end
   end
 end

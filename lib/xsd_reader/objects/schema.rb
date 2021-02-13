@@ -3,6 +3,7 @@ module XsdReader
   # Parent elements: NONE
   # https://www.w3schools.com/xml/el_schema.asp
   class Schema < BaseObject
+    include AttributeContainer
     include ElementContainer
 
     # Optional. The form for attributes declared in the target namespace of this schema. The value must be "qualified"
@@ -62,22 +63,42 @@ module XsdReader
     # @return [String]
     property :xmlns, :string
 
-    # Get global complex types
+    # Global complex types
+    # @!attribute complex_types
     # @return [Array<ComplexType>]
-    def complex_types
-      @complex_types ||= map_children('complexType')
-    end
+    child :complex_types, [ComplexType]
 
-    # Get global simple types
+    # Global simple types
+    # @!attribute simple_types
     # @return [Array<SimpleType>]
-    def simple_types
-      @simple_types ||= map_children('simpleType')
-    end
+    child :simple_types, [SimpleType]
+
+    # Global groups
+    # @!attribute groups
+    # @return [Array<Group>]
+    child :groups, [Group]
+
+    # Get nested groups
+    # @!attribute imports
+    # @return [Array<Import>]
+    child :imports, [Import]
 
     # Get current schema object
     # @return [Schema]
     def schema
       self
+    end
+
+    # Get all available root elements
+    # @return [Array<Element>]
+    def all_elements
+      elements
+    end
+
+    # Get all available root attributes
+    # @return [Array<Attribute>]
+    def all_attributes
+      attributes
     end
 
     def target_namespace_prefix
@@ -98,20 +119,16 @@ module XsdReader
       target_namespace == ns || target_namespace == namespaces["xmlns:#{ns}"]
     end
 
-    def imports
-      @imports ||= map_children("import")
-    end
-
     # Override map_children on schema to get objects from all imported schemas
-    # @param [String] xml_name
+    # @param [String] name
     # @return [Array]
-    def map_children(xml_name)
-      super + import_map_children(xml_name)
+    def map_children(name)
+      super + import_map_children(name)
     end
 
-    def import_map_children(xml_name)
-      return [] if xml_name == 'import'
-      imports.map { |import| import.reader.schema.map_children(xml_name) }.flatten
+    def import_map_children(name)
+      return [] if name == 'import'
+      imports.map { |import| import.reader.schema.map_children(name) }.flatten
     end
 
     def import_by_namespace(ns)

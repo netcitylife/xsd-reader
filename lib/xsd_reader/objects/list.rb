@@ -14,9 +14,9 @@ module XsdReader
     private
 
     # Get type attribute value
-    # @return [String, nil]
-    def type_attribute
-      item_type
+    # @return [Symbol]
+    def self.type_property
+      :itemType
     end
   end
 end

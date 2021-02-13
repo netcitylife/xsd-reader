@@ -37,48 +37,19 @@ module XsdReader
     property :final, :string
 
     # Simple content object
+    # @!attribute simple_content
     # @return [SimpleContent]
-    def simple_content
-      @simple_content ||= map_child("simpleContent")
-    end
+    child :simple_content, SimpleContent
 
-    # Get complex content object
+    # Complex content object
+    # @!attribute complex_content
     # @return [ComplexContent]
-    def complex_content
-      @complex_content ||= map_child("complexContent")
-    end
-
-    # Get all attributes defined by type
-    # @return [Array<Attribute>]
-    def attributes
-      if simple_content
-        simple_content.attributes
-      elsif complex_content
-        complex_content.attributes
-      else
-        super
-      end
-    end
+    child :complex_content, ComplexContent
 
     # Determine if this is a linked type
     # @return [Boolean]
     def linked?
-      # TODO: possibly additional check parent for type attribute
       !name.nil?
-    end
-
-    def elements
-      all_elements
-    end
-
-    def parent_element
-      if parent.nil? || parent.is_a?(Schema) || !parent.is_a?(Element)
-        parent_elements.first
-      end
-    end
-
-    def parent_elements
-      elements_by_type(self.name)
     end
   end
 end

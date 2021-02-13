@@ -5,15 +5,13 @@ module XsdReader
   class Unique < BaseObject
 
     # Get nested selector object
+    # @!attribute selector
     # @return [Selector]
-    def selector
-      @selector ||= map_child('selector')
-    end
+    child :selector, Selector
 
     # Get nested field objects
+    # @!attribute fields
     # @return [Array<Field>]
-    def fields
-      @fields ||= map_children('field')
-    end
+    child :fields, [Field]
   end
 end

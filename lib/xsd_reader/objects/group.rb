@@ -7,22 +7,19 @@ module XsdReader
     include MinMaxOccurs
     include Referenced
 
-    # Get nested all object
+    # Nested all object
+    # @!attribute all
     # @return [All]
-    def all
-      @all ||= map_child('all')
-    end
+    child :all, All
 
-    # Get nested choice object
+    # Nested choice object
+    # @!attribute choice
     # @return [Choice]
-    def choice
-      @choice ||= map_child('choice')
-    end
+    child :choice, Choice
 
-    # Get nested sequence object
+    # Nested sequence object
+    # @!attribute sequence
     # @return [Sequence]
-    def sequence
-      @sequence ||= map_child('sequence')
-    end
+    child :sequence, Sequence
   end
 end

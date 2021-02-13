@@ -6,12 +6,13 @@ module XsdReader
     include Based
     include SimpleTyped
     include ComplexTyped
+    include AttributeContainer
 
     private
 
     # Get type attribute value
-    # @return [String, nil]
-    def type_attribute
+    # @return [nil]
+    def self.type_property
       nil
     end
   end

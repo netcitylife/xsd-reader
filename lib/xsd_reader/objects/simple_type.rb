@@ -5,28 +5,24 @@ module XsdReader
   # https://www.w3schools.com/xml/el_simpletype.asp
   class SimpleType < BaseObject
 
-    # Get nested restriction
+    # Nested restriction
+    # @!attribute restriction
     # @return [Restriction, nil]
-    def restriction
-      @restriction ||= map_child('restriction')
-    end
+    child :restriction, Restriction
 
-    # Get nested union
+    # Nested union
+    # @!attribute union
     # @return [Union, nil]
-    def union
-      @union ||= map_child('union')
-    end
+    child :union, Union
 
-    # Get nested list
+    # Nested list
+    # @!attribute list
     # @return [List, nil]
-    def list
-      @list ||= map_child('list')
-    end
+    child :list, List
 
     # Determine if this is a linked type
     # @return [Boolean]
     def linked?
-      # TODO: possibly additional check parent for type attribute
       !name.nil?
     end
   end

@@ -5,30 +5,19 @@ module XsdReader
     # If ref is present, simpleType element, form, and type cannot be present
     # @!attribute ref
     # @return [String]
-    attribute :ref, :string
 
-    def referenced_object
-      @referenced_object ||= object_by_name(self.class.name.split('::').last.downcase, ref) if ref
+    # Reference object
+    # @!attribute reference
+    # @return [BaseObject]
+    def self.included(obj)
+      property :ref, :string
+      link :reference, obj, property: :ref
     end
 
-    def all_elements
-      referenced_object ? referenced_object.all_elements : super
-    end
-
-    def nested_elements
-      referenced_object ? referenced_object.nested_elements : super
-    end
-
-    def attributes
-      referenced_object ? referenced_object.attributes : super
-    end
-
-    def name
-      super || referenced_object&.name
-    end
-
-    def type
-      super || referenced_object&.type
+    # Is object referenced?
+    # @return [Boolean]
+    def referenced?
+      !ref.nil?
     end
   end
 end

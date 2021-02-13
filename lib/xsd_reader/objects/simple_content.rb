@@ -5,16 +5,14 @@ module XsdReader
   # https://www.w3schools.com/xml/el_simpleContent.asp
   class SimpleContent < BaseObject
 
-    # Get nested extension
+    # Nested extension
+    # @!attribute extension
     # @return [Extension, nil]
-    def extension
-      @extension ||= map_child('extension')
-    end
+    child :extension, Extension
 
-    # Get nested restriction
+    # Nested restriction
+    # @!attribute restriction
     # @return [Restriction, nil]
-    def restriction
-      @restriction ||= map_child('restriction')
-    end
+    child :restriction, Restriction
   end
 end

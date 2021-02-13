@@ -1,19 +1,13 @@
 module XsdReader
   # Provides object an ability to have simple type (nested or linked)
   module SimpleTyped
-
-    # Get connected simple type
+    
+    # Get child/linked simple type
+    # @!attribute simple_type
     # @return [SimpleType, nil]
-    def simple_type
-      @simple_type ||= type_attribute ? object_by_name('simpleType', type_attribute) : map_child('simpleType')
-    end
-
-    private
-
-    # Get type attribute value
-    # @return [String, nil]
-    def type_attribute
-      type
+    def self.included(obj)
+      obj.child :simple_type, SimpleType
+      obj.link :simple_type, SimpleType, property: obj.type_property
     end
   end
 end

@@ -1,7 +1,7 @@
 module XsdReader
   # Base object
   class BaseObject
-    attr_reader :options, :properties
+    attr_reader :options, :properties, :children, :links
 
     # Optional. Specifies a unique ID for the element
     # @!attribute id
@@ -16,6 +16,9 @@ module XsdReader
     def initialize(options = {})
       @options    = options
       @properties = {}
+      @children   = {}
+      @links      = {}
+      @cache      = {}
 
       raise Error, "#{self.class}.new expects a hash parameter" unless @options.is_a?(Hash)
     end
@@ -55,9 +58,9 @@ module XsdReader
         curname = curname.to_s
 
         if curname =~ /^@/
-          result = result.attributes.find { |attr| attr.name == curname.sub(/^@/, '') }
+          result = result.all_attributes.find { |attr| attr.name == curname.sub(/^@/, '') }
         else
-          result = result.elements.find { |elem| elem.name == curname }
+          result = result.all_elements.find { |elem| elem.name == curname }
         end
       end
 
@@ -155,27 +158,16 @@ module XsdReader
       node.xpath('./xs:annotation/xs:documentation/text()', { 'xs' => 'http://www.w3.org/2001/XMLSchema' }).map(&:to_s).map(&:strip)
     end
 
-    def elements
-      direct_elements
-    end
-
-    # Get all direct child elements
-    def direct_elements
-      @direct_elements ||= map_children("element")
-    end
-
-    # Get all nested elements
-    def nested_elements
-      # loop over each interpretable child xml node, and if we can convert a child node
-      # to an XsdReader object, let it give its compilation of all_elements
-      nodes.map { |node| node_to_object(node) }.compact.map do |obj|
-        obj.is_a?(Element) ? obj : obj.nested_elements
-      end.flatten
-    end
-
-    # Get all elements, including
+    # Get all available elements on the current stack level
+    # @return [Array<Element>]
     def all_elements
-      @all_elements ||= nested_elements + (linked_complex_type&.all_elements || [])
+      map_children('*').map { |obj| obj.is_a?(Element) ? obj : obj.all_elements }.flatten
+    end
+
+    # Get all available attributes on the current stack level
+    # @return [Array<Attribute>]
+    def all_attributes
+      map_children('*').map { |obj| obj.is_a?(Attribute) ? obj : obj.all_attributes }.flatten
     end
 
     protected
@@ -189,6 +181,30 @@ module XsdReader
         name:    name,
         type:    type,
         resolve: block,
+        **options
+      }
+    end
+
+    # Define new object child
+    # @param [Symbol] name
+    # @param [Class<BaseObject>, Array<Class<BaseObject>>] type
+    # @param [Hash] options
+    def self.child(name, type, options = {})
+      @children[to_underscore(name)] = {
+        name: name,
+        type: type,
+        **options
+      }
+    end
+
+    # Define new object child
+    # @param [Symbol] name
+    # @param [Class<BaseObject>] type
+    # @param [Hash] options
+    def self.link(name, type, options = {})
+      @links[to_underscore(name)] = {
+        name: name,
+        type: type,
         **options
       }
     end
@@ -208,29 +224,47 @@ module XsdReader
     private
 
     def self.to_underscore(string)
-      string.gsub(/([^A-Z])([A-Z]+)/,'\1_\2').downcase
+      string.gsub(/([^A-Z])([A-Z]+)/, '\1_\2').downcase
+    end
+
+    def self.uncapitalize(string)
+      string.sub(/^([A-Z])/) { $1.tr!('[A-Z]', '[a-z]') }
     end
 
     # Lookup for properties
     def method_missing(symbol, *args)
-      property = @properties[symbol]
 
-      if property
-        # get value
-        value = property[:resolve] ? property[:resolve].call : node[property[:name]]
-        return property[:default] if value.nil?
-
-        case property[:type]
-        when :integer
-          return property == :maxOccurs && value == 'unbounded' ? :unbounded : value.to_i
-        when :boolean
-          return !!value
-        else
-          return value
-        end
+      # if object has reference - proxy call to target object
+      if node['ref']
+        return reference.send(symbol, *args)
       end
 
-      raise Error, "Tried to access unknown property #{symbol} on #{self.class.name}"
+      @cache[symbol] ||=
+        if (property = @properties[symbol])
+          # get value
+          value = property[:resolve] ? property[:resolve].call : node[property[:name]]
+          if value.nil?
+            property[:default]
+          else
+            case property[:type]
+            when :integer
+              property[:name] == :maxOccurs && value == 'unbounded' ? :unbounded : value.to_i
+            when :boolean
+              !!value
+            else
+              value
+            end
+          end
+        elsif (child = @children[symbol])
+          element = self.class.uncapitalize(child[:type].to_s)
+          map_children(element)
+        elsif (link = @links[symbol])
+          element = self.class.uncapitalize(link[:type].to_s)
+          name    = send(link[:property])
+          object_by_name(element, name) if name
+        else
+          raise Error, "Tried to access unknown property #{symbol} on #{self.class.name}"
+        end
     end
   end
 end

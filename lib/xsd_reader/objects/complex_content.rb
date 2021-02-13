@@ -11,15 +11,13 @@ module XsdReader
     property :mixed, :boolean, default: false
 
     # Get nested extension
+    # @!attribute extension
     # @return [Extension, nil]
-    def extension
-      @extension ||= map_child('extension')
-    end
+    child :extension, Extension
 
     # Get nested restriction
+    # @!attribute restriction
     # @return [Restriction, nil]
-    def restriction
-      @restriction ||= map_child('restriction')
-    end
+    child :restriction, Restriction
   end
 end

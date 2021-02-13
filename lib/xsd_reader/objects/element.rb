@@ -73,20 +73,12 @@ module XsdReader
     # @return [String, nil]
     property :final, :string
 
-    # Get nested unique objects
+    # Nested unique objects
+    # @!attribute unique
     # @return [Array<Unique>]
-    def unique
-      @unique ||= map_children('unique')
-    end
-
-    # Get all attributes available on element
-    # @return [Array<Attribute>]
-    def all_attributes
-      @attributes ||= complex_type&.attributes || []
-    end
+    child :unique, [Unique]
 
     # Determine if element is required
-    # TODO: consider parent node group/sequence/choice/all min/max occurs
     # @return [Boolean]
     def required?
       min_occurs > 0 && !choice?
@@ -99,13 +91,13 @@ module XsdReader
     end
 
     # Determine if element may occur multiple times
-    # TODO: consider parent node group/sequence/choice/all min/max occurs
     # @return [Boolean]
     def multiple_allowed?
       max_occurs == :unbounded || max_occurs > 1
     end
 
     # Determine if element is inside choice
+    # @return [Boolean]
     def choice?
       obj = self
       loop do
@@ -115,6 +107,14 @@ module XsdReader
         obj = parent
       end
       false
+    end
+
+    private
+
+    # Get type attribute value
+    # @return [Symbol]
+    def self.type_property
+      :type
     end
   end
 end

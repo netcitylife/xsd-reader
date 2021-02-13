@@ -11,7 +11,7 @@ module XsdReader
       node['memberTypes']&.split(' ')
     end
 
-    # Get nested simple types
+    # Nested simple and built-in types
     # @return [Array<SimpleType, String>]
     def types
       @types ||= map_children("simpleType") + member_types.map do |name|

@@ -1,10 +1,11 @@
 module XsdReader
   module ElementContainer
 
-    # Get nested elements
+    # Nested elements
+    # @!attribute elements
     # @return [Array<Element>]
-    def elements
-      @elements ||= map_children('elements')
+    def self.included(obj)
+      obj.child :elements, [Element]
     end
   end
 end

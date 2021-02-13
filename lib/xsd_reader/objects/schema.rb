@@ -3,18 +3,23 @@ module XsdReader
   # Parent elements: NONE
   # https://www.w3schools.com/xml/el_schema.asp
   class Schema < BaseObject
+    include ElementContainer
 
     # Optional. The form for attributes declared in the target namespace of this schema. The value must be "qualified"
     # or "unqualified". Default is "unqualified". "unqualified" indicates that attributes from the target namespace
     # are not required to be qualified with the namespace prefix. "qualified" indicates that attributes from the target
     # namespace must be qualified with the namespace prefix
-    property :attributeFormDefault, :string, optional: true, default: 'unqualified'
+    # @!attribute attribute_form_default
+    # @return [String]
+    property :attributeFormDefault, :string, default: 'unqualified'
 
     # Optional. The form for elements declared in the target namespace of this schema. The value must be "qualified"
     # or "unqualified". Default is "unqualified". "unqualified" indicates that elements from the target namespace are
     # not required to be qualified with the namespace prefix. "qualified" indicates that elements from the target
     # namespace must be qualified with the namespace prefix
-    property :elementFormDefault, :string, optional: true, default: 'unqualified'
+    # @!attribute element_form_default
+    # @return [String]
+    property :elementFormDefault, :string, default: 'unqualified'
 
     # Optional. Specifies the default value of the block attribute on element and complexType elements in the target
     # namespace. The block attribute prevents a complex type (or element) that has a specified type of derivation from
@@ -24,7 +29,9 @@ module XsdReader
     #   restriction - prevents complex types derived by restriction
     #   substitution - prevents substitution of elements
     #   #all - prevents all derived complex types
-    property :blockDefault, :string, optional: true
+    # @!attribute block_default
+    # @return [String]
+    property :blockDefault, :string
 
     # Optional. Specifies the default value of the final attribute on element, simpleType, and complexType elements in
     # the target namespace. The final attribute prevents a specified type of derivation of an element, simpleType, or
@@ -35,16 +42,24 @@ module XsdReader
     #   list - prevents derivation by list
     #   union - prevents derivation by union
     #   #all - prevents all derivation
-    property :finalDefault, :string, optional: true
+    # @!attribute final_default
+    # @return [String]
+    property :finalDefault, :string
 
     # Optional. A URI reference of the namespace of this schema
-    property :targetNamespace, :string, optional: true
+    # @!attribute target_namespace
+    # @return [String]
+    property :targetNamespace, :string
 
     # Optional. Specifies the version of the schema
-    property :version, :string, optional: true
+    # @!attribute version
+    # @return [String]
+    property :version, :string
 
     # A URI reference that specifies one or more namespaces for use in this schema. If no prefix is assigned, the schema
     # components of the namespace can be used with unqualified references
+    # @!attribute xmlns
+    # @return [String]
     property :xmlns, :string
 
     # Get global complex types

@@ -7,7 +7,8 @@ module XsdReader
 
     # Required. Specifies an XPath expression, relative to the element being declared, that identifies the child
     # elements to which the identity constraint applies
+    # @!attribute xpath
     # @return [String]
-    property :xpath, :string
+    property :xpath, :string, required: true
   end
 end

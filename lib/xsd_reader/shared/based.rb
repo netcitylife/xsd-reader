@@ -4,6 +4,7 @@ module XsdReader
     include AttributeContainer
 
     # Required. Specifies the name of a built-in data type, a simpleType element, or a complexType element
+    # @!attribute base
     # @return [String]
     property :base, :string
 

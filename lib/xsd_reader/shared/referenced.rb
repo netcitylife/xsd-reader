@@ -3,7 +3,9 @@ module XsdReader
 
     # Optional. Specifies a reference to a named attribute. Name and ref attributes cannot both be present.
     # If ref is present, simpleType element, form, and type cannot be present
-    attribute :ref, :string, optional: true
+    # @!attribute ref
+    # @return [String]
+    attribute :ref, :string
 
     def referenced_object
       @referenced_object ||= object_by_name(self.class.name.split('::').last.downcase, ref) if ref

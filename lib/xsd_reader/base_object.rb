@@ -4,10 +4,14 @@ module XsdReader
     attr_reader :options, :properties
 
     # Optional. Specifies a unique ID for the element
-    property :id, :string, optional: true
+    # @!attribute id
+    # @return [String]
+    property :id, :string
 
     # Optional. Specifies the name of the attribute. Name and ref attributes cannot both be present
-    property :name, :string, optional: true
+    # @!attribute name
+    # @return [String]
+    property :name, :string
 
     def initialize(options = {})
       @options    = options
@@ -181,7 +185,7 @@ module XsdReader
     # @param [Symbol] type
     # @param [Hash] options
     def self.property(name, type, options = {}, &block)
-      @properties[name] = {
+      @properties[to_underscore(name)] = {
         name:    name,
         type:    type,
         resolve: block,
@@ -203,15 +207,17 @@ module XsdReader
 
     private
 
+    def self.to_underscore(string)
+      string.gsub(/([^A-Z])([A-Z]+)/,'\1_\2').downcase
+    end
+
     # Lookup for properties
     def method_missing(symbol, *args)
       property = @properties[symbol]
 
       if property
-        # call if block was provided
-        return property[:resolve].call if property[:resolve]
-
-        value = node[property[:name]]
+        # get value
+        value = property[:resolve] ? property[:resolve].call : node[property[:name]]
         return property[:default] if value.nil?
 
         case property[:type]

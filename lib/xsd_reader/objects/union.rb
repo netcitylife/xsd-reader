@@ -5,15 +5,16 @@ module XsdReader
   class Union < BaseObject
 
     # Optional. Specifies a list of built-in data types or simpleType elements defined in a schema
+    # @!attribute member_types
     # @return [Array<String>]
-    property :memberTypes, :array, optional: true, default: [] do
-      node['memberTypes']&.split(' ') || []
+    property :memberTypes, :array, default: [] do
+      node['memberTypes']&.split(' ')
     end
 
     # Get nested simple types
     # @return [Array<SimpleType, String>]
     def types
-      @types ||= map_children("simpleType") + memberTypes.map do |name|
+      @types ||= map_children("simpleType") + member_types.map do |name|
         object_by_name('simpleType', name) || name
       end
     end

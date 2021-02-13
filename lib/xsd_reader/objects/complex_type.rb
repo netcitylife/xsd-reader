@@ -8,29 +8,33 @@ module XsdReader
 
     # Optional. Specifies whether the complex type can be used in an instance document. True indicates that an element
     # cannot use this complex type directly but must use a complex type derived from this complex type. Default is false
+    # @!attribute abstract
     # @return [Boolean]
-    property :abstract, :boolean, optional: true, default: false
+    property :abstract, :boolean, default: false
 
     # Optional. Specifies whether character data is allowed to appear between the child elements of this complexType
     # element. Default is false. If a simpleContent element is a child element, the mixed attribute is not allowed!
+    # @!attribute mixed
     # @return [Boolean]
-    property :mixed, :boolean, optional: true, default: false
+    property :mixed, :boolean, default: false
 
     # Optional. Prevents a complex type that has a specified type of derivation from being used in place of this
     # complex type. This value can contain #all or a list that is a subset of extension or restriction:
     #   extension - prevents complex types derived by extension
     #   restriction - prevents complex types derived by restriction
     #   #all - prevents all derived complex types
+    # @!attribute block
     # @return [String, nil]
-    property :block, :string, optional: true
+    property :block, :string
 
     # Optional. Prevents a specified type of derivation of this complex type element. Can contain #all or a list
     # that is a subset of extension or restriction.
     #   extension - prevents derivation by extension
     #   restriction - prevents derivation by restriction
     #   #all - prevents all derivation
+    # @!attribute final
     # @return [String, nil]
-    property :final, :string, optional: true
+    property :final, :string
 
     # Simple content object
     # @return [SimpleContent]

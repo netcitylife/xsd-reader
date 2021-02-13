@@ -8,12 +8,14 @@ module XsdReader
     include Referenced
 
     # Optional. Specifies a default value for the attribute. Default and fixed attributes cannot both be present
+    # @!attribute default
     # @return [String, nil]
-    property :default, :string, optional: true
+    property :default, :string
 
     # Optional. Specifies a fixed value for the attribute. Default and fixed attributes cannot both be present
+    # @!attribute fixed
     # @return [String, nil]
-    property :fixed, :string, optional: true
+    property :fixed, :string
 
     # Optional. Specifies the form for the attribute. The default value is the value of the attributeFormDefault
     # attribute of the element containing the attribute. Can be set to one of the following:
@@ -21,21 +23,24 @@ module XsdReader
     #                 (NCName) of the attribute
     #   unqualified - indicates that this attribute is not required to be qualified with the namespace prefix and is
     #                 matched against the (NCName) of the attribute
+    # @!attribute form
     # @return [String, nil]
     # TODO: поддержка default значения с вычислением родителя
-    property :form, :string, optional: true
+    property :form, :string
 
     # Optional. Specifies a built-in data type or a simple type. The type attribute can only be present when the
     # content does not contain a simpleType element
+    # @!attribute type
     # @return [String, nil]
-    property :type, :string, optional: true
+    property :type, :string
 
     # Optional. Specifies how the attribute is used. Can be one of the following values:
     #   optional   - the attribute is optional (this is default)
     #   prohibited - the attribute cannot be used
     #   required   - the attribute is required
+    # @!attribute use
     # @return [String]
-    property :use, :string, optional: true, default: 'optional'
+    property :use, :string, default: 'optional'
 
     # Determine if attribute is required
     # @return [Boolean]

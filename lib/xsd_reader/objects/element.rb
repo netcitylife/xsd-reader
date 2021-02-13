@@ -9,42 +9,49 @@ module XsdReader
     include Referenced
 
     # Optional. Specifies either the name of a built-in data type, or the name of a simpleType or complexType element
+    # @!attribute type
     # @return [String, nil]
-    property :type, :string, optional: true
+    property :type, :string
 
     # Optional. Specifies the name of an element that can be substituted with this element. This attribute cannot be
     # used if the parent element is not the schema element
+    # @!attribute substitution_group
     # @return [String, nil]
-    property :substitutionGroup, :string, optional: true
+    property :substitutionGroup, :string
 
     # Optional. Specifies a default value for the element (can only be used if the element's content is a simple type
     # or text only)
+    # @!attribute default
     # @return [String, nil]
-    property :default, :string, optional: true
+    property :default, :string
 
     # Optional. Specifies a fixed value for the element (can only be used if the element's content is a simple type
     # or text only)
+    # @!attribute fixed
     # @return [String, nil]
-    property :fixed, :string, optional: true
+    property :fixed, :string
 
     # Optional. Specifies the form for the element. "unqualified" indicates that this element is not required to be
     # qualified with the namespace prefix. "qualified" indicates that this element must be qualified with the namespace
     # prefix. The default value is the value of the elementFormDefault attribute of the schema element. This attribute
     # cannot be used if the parent element is the schema element
+    # @!attribute form
     # @return [String]
-    property :form, :string, optional: true
+    property :form, :string
 
     # Optional. Specifies whether an explicit null value can be assigned to the element. True enables an instance of
     # the element to have the null attribute set to true. The null attribute is defined as part of the XML Schema
     # namespace for instances. Default is false
+    # @!attribute nillable
     # @return [Boolean]
-    property :nillable, :boolean, optional: true, default: false
+    property :nillable, :boolean, default: false
 
     # Optional. Specifies whether the element can be used in an instance document. True indicates that the element
     # cannot appear in the instance document. Instead, another element whose substitutionGroup attribute contains the
     # qualified name (QName) of this element must appear in this element's place. Default is false
+    # @!attribute abstract
     # @return [Boolean]
-    property :abstract, :boolean, optional: true, default: false
+    property :abstract, :boolean, default: false
 
     # Optional. Prevents an element with a specified type of derivation from being used in place of this element.
     # This value can contain #all or a list that is a subset of extension, restriction, or equivClass:
@@ -52,8 +59,9 @@ module XsdReader
     #     restriction  - prevents elements derived by restriction
     #     substitution - prevents elements derived by substitution
     #     #all         - prevents all derived elements
+    # @!attribute block
     # @return [String, nil]
-    property :block, :string, optional: true
+    property :block, :string
 
     # Optional. Sets the default value of the final attribute on the element element. This attribute cannot be used if
     # the parent element is not the schema element. This value can contain #all or a list that is a subset of extension
@@ -61,8 +69,9 @@ module XsdReader
     #     extension   - prevents elements derived by extension
     #     restriction - prevents elements derived by restriction
     #     #all        - prevents all derived elements
+    # @!attribute final
     # @return [String, nil]
-    property :final, :string, optional: true
+    property :final, :string
 
     # Get nested unique objects
     # @return [Array<Unique>]
@@ -80,7 +89,7 @@ module XsdReader
     # TODO: consider parent node group/sequence/choice/all min/max occurs
     # @return [Boolean]
     def required?
-      minOccurs > 0 && !choice?
+      min_occurs > 0 && !choice?
     end
 
     # Determine if element is optional
@@ -93,7 +102,7 @@ module XsdReader
     # TODO: consider parent node group/sequence/choice/all min/max occurs
     # @return [Boolean]
     def multiple_allowed?
-      maxOccurs == :unbounded || maxOccurs > 1
+      max_occurs == :unbounded || max_occurs > 1
     end
 
     # Determine if element is inside choice

@@ -6,8 +6,9 @@ module XsdReader
 
     # Optional. Specifies whether character data is allowed to appear between the child elements of this complexType
     # element. Default is false
+    # @!attribute mixed
     # @return [Boolean]
-    property :mixed, :boolean, optional: true, default: false
+    property :mixed, :boolean, default: false
 
     # Get nested extension
     # @return [Extension, nil]

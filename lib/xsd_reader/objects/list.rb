@@ -7,15 +7,16 @@ module XsdReader
 
     # Specifies the name of a built-in data type or simpleType element defined in this or another schema.
     # This attribute is not allowed if the content contains a simpleType element, otherwise it is required
+    # @!attribute item_type
     # @return [String, nil]
-    property :itemType, :string, optional: true
+    property :itemType, :string
 
     private
 
     # Get type attribute value
     # @return [String, nil]
     def type_attribute
-      itemType
+      item_type
     end
   end
 end

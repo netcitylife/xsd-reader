@@ -7,12 +7,14 @@ module XsdReader
   class Import < BaseObject
 
     # Optional. Specifies the URI of the namespace to import
+    # @!attribute namespace
     # @return [String, nil]
-    property :namespace, :string, optional: true
+    property :namespace, :string
 
     # Optional. Specifies the URI to the schema for the imported namespace
+    # @!attribute schema_location
     # @return [String, nil]
-    property :schemaLocation, :string, optional: true
+    property :schemaLocation, :string
 
     # Get reader for import
     # @return [XsdReader::XML]
@@ -23,8 +25,8 @@ module XsdReader
         return @reader = XsdReader::XML.new(:xsd_file => download_path, logger: logger)
       end
 
-      xml = if options[:xsd_imported_xml] && options[:xsd_imported_xml][schemaLocation]
-              options[:xsd_imported_xml][schemaLocation]
+      xml = if options[:xsd_imported_xml] && options[:xsd_imported_xml][schema_location]
+              options[:xsd_imported_xml][schema_location]
             else
               download
             end
@@ -34,10 +36,10 @@ module XsdReader
     def uri
       if namespace =~ /\.xsd$/
         namespace
-      elsif schemaLocation =~ /^https?:/
-        schemaLocation
+      elsif schema_location =~ /^https?:/
+        schema_location
       else
-        namespace.gsub(/#{File.basename(schemaLocation, '.*')}$/, '').to_s + schemaLocation
+        namespace.gsub(/#{File.basename(schema_location, '.*')}$/, '').to_s + schema_location
       end
     end
 
@@ -49,7 +51,7 @@ module XsdReader
       # we need the parent XSD's path
       return nil if options[:xsd_file].nil?
       parent_path = File.dirname(options[:xsd_file])
-      File.join(parent_path, File.basename(schemaLocation))
+      File.join(parent_path, File.basename(schema_location))
     end
 
     def local_xml

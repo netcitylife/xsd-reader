@@ -10,12 +10,12 @@ module XsdReader
       obj.link :complex_type, :complexType, property: obj::TYPE_PROPERTY
     end
 
-    def all_elements
-      super + (complex_type&.all_elements || [])
+    def all_elements(include_type = true)
+      super + (include_type && complex_type ? complex_type.all_elements : [])
     end
 
-    def all_attributes
-      super + (complex_type&.all_attributes || [])
+    def all_attributes(include_type = true)
+      super + (include_type && complex_type ? complex_type.all_attributes : [])
     end
   end
 end

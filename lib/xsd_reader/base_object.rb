@@ -4,11 +4,10 @@ module XsdReader
     attr_reader :options
 
     # Objects that can not have nested elements
-    NO_ELEMENTS_CONTAINER = [Annotation, SimpleType, AttributeGroup, Attribute, Unique, Union, SimpleContent, List,
-                             Any, AnyAttribute].freeze
+    NO_ELEMENTS_CONTAINER = %w[Annotation SimpleType AttributeGroup Attribute Unique Union SimpleContent List Any AnyAttribute].freeze
 
     # Objects that cannot have nested attributes
-    NO_ATTRIBUTES_CONTAINER = [Annotation, Unique, AnyAttribute, All, Attribute, Choice, Sequence, Group].freeze
+    NO_ATTRIBUTES_CONTAINER = %w[Annotation Unique AnyAttribute All Attribute Choice Sequence Group].freeze
 
     class << self
       attr_reader :properties, :children, :links
@@ -177,7 +176,7 @@ module XsdReader
     # @return [Array<Element>]
     def all_elements
       # exclude element that can not have elements
-      return [] if NO_ELEMENTS_CONTAINER.include?(self.class)
+      return [] if NO_ELEMENTS_CONTAINER.include?(self.class.to_s.sub('XsdReader::', ''))
 
       # map children recursive
       map_children(:*).map { |obj| obj.is_a?(Element) ? obj : obj.all_elements }.flatten
@@ -187,7 +186,7 @@ module XsdReader
     # @return [Array<Attribute>]
     def all_attributes
       # exclude element that can not have elements
-      return [] if NO_ATTRIBUTES_CONTAINER.include?(self.class)
+      return [] if NO_ATTRIBUTES_CONTAINER.include?(self.class.to_s.sub('XsdReader::', ''))
 
       # map children recursive
       map_children(:*).map { |obj| obj.is_a?(Attribute) ? obj : obj.all_attributes }.flatten

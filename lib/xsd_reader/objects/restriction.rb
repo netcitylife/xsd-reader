@@ -15,10 +15,6 @@ module XsdReader
       fractionDigits length minLength maxLength enumeration whiteSpace pattern
     ].freeze
 
-    def all_elements
-      base_complex_type.all_elements + complex_type.all_elements
-    end
-
     # Get restriction facets
     # @return [Hash]
     def facets

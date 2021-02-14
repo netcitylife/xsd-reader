@@ -6,8 +6,8 @@ module XsdReader
     # @!attribute simple_type
     # @return [SimpleType, nil]
     def self.included(obj)
-      obj.child :simple_type, SimpleType
-      obj.link :simple_type, SimpleType, property: obj.type_property
+      obj.child :simple_type, :simpleType
+      obj.link :simple_type, :simpleType, property: obj::TYPE_PROPERTY
     end
   end
 end

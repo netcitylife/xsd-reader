@@ -3,10 +3,17 @@ module XsdReader
   # Parent elements: schema, choice, all, sequence, group
   # https://www.w3schools.com/xml/el_element.asp
   class Element < BaseObject
+    TYPE_PROPERTY = :type
+
     include MinMaxOccurs
     include SimpleTyped
     include ComplexTyped
     include Referenced
+
+    # Optional. Specifies the name of the attribute. Name and ref attributes cannot both be present
+    # @!attribute name
+    # @return [String]
+    property :name, :string
 
     # Optional. Specifies either the name of a built-in data type, or the name of a simpleType or complexType element
     # @!attribute type
@@ -76,7 +83,7 @@ module XsdReader
     # Nested unique objects
     # @!attribute unique
     # @return [Array<Unique>]
-    child :unique, [Unique]
+    child :unique, [:unique]
 
     # Determine if element is required
     # @return [Boolean]
@@ -109,12 +116,8 @@ module XsdReader
       false
     end
 
-    private
-
-    # Get type attribute value
-    # @return [Symbol]
-    def self.type_property
-      :type
+    def all_elements
+      complex_type.all_elements
     end
   end
 end

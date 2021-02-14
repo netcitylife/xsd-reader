@@ -8,11 +8,11 @@ module XsdReader
     # Nested extension
     # @!attribute extension
     # @return [Extension, nil]
-    child :extension, Extension
+    child :extension, :extension
 
     # Nested restriction
     # @!attribute restriction
     # @return [Restriction, nil]
-    child :restriction, Restriction
+    child :restriction, :restriction
   end
 end

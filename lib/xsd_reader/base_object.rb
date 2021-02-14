@@ -1,24 +1,62 @@
 module XsdReader
   # Base object
   class BaseObject
-    attr_reader :options, :properties, :children, :links
+    attr_reader :options
+
+    class << self
+      attr_reader :properties, :children, :links
+    end
+
+    def self.to_underscore(string)
+      string.to_s.gsub(/([^A-Z])([A-Z]+)/, '\1_\2').downcase.to_sym
+    end
+
+    # Define new object property
+    # @param [Symbol] name
+    # @param [Symbol] type
+    # @param [Hash] options
+    def self.property(name, type, options = {}, &block)
+      @properties                      ||= {}
+      @properties[to_underscore(name)] = {
+        name:    name,
+        type:    type,
+        resolve: block,
+        **options
+      }
+    end
+
+    # Define new object child
+    # @param [Symbol] name
+    # @param [Symbol, Array<Symbol>] type
+    # @param [Hash] options
+    def self.child(name, type, options = {})
+      @children                      ||= {}
+      @children[to_underscore(name)] = {
+        type: type,
+        **options
+      }
+    end
+
+    # Define new object child
+    # @param [Symbol] name
+    # @param [Symbol] type
+    # @param [Hash] options
+    def self.link(name, type, options = {})
+      @links                      ||= {}
+      @links[to_underscore(name)] = {
+        type: type,
+        **options
+      }
+    end
 
     # Optional. Specifies a unique ID for the element
     # @!attribute id
     # @return [String]
-    property :id, :string
-
-    # Optional. Specifies the name of the attribute. Name and ref attributes cannot both be present
-    # @!attribute name
-    # @return [String]
-    property :name, :string
+    # property :id, :string
 
     def initialize(options = {})
-      @options    = options
-      @properties = {}
-      @children   = {}
-      @links      = {}
-      @cache      = {}
+      @options = options
+      @cache   = {}
 
       raise Error, "#{self.class}.new expects a hash parameter" unless @options.is_a?(Hash)
     end
@@ -30,8 +68,9 @@ module XsdReader
     end
 
     # Get child nodes
+    # @param [Symbol] name
     # @return [Nokogiri::XML::NodeSet]
-    def nodes(name = '*')
+    def nodes(name = :*)
       node.xpath("./xs:#{name}", { 'xs' => 'http://www.w3.org/2001/XMLSchema' })
     end
 
@@ -44,7 +83,7 @@ module XsdReader
       elsif (import = schema.import_by_namespace(prefix))
         import.reader.schema
       else
-        raise Error, "Schema not found for namespace '#{prefix}' in '#{schema.id || schema.targetNamespace}'"
+        raise Error, "Schema not found for namespace '#{prefix}' in '#{schema.id || schema.target_namespace}'"
       end
     end
 
@@ -68,7 +107,7 @@ module XsdReader
     end
 
     # Search node by name in all available schemas and return its object
-    # @param [String] node_name
+    # @param [Symbol] node_name
     # @param [String] name
     # @return [BaseObject, nil]
     def object_by_name(node_name, name)
@@ -118,14 +157,14 @@ module XsdReader
     end
 
     # Get child objects
-    # @param [String] name
+    # @param [Symbol] name
     # @return [Array<BaseObject>]
     def map_children(name)
       nodes(name).map { |node| node_to_object(node) }
     end
 
     # Get child object
-    # @param [String] name
+    # @param [Symbol] name
     # @return [BaseObject, nil]
     def map_child(name)
       map_children(name).first
@@ -161,52 +200,13 @@ module XsdReader
     # Get all available elements on the current stack level
     # @return [Array<Element>]
     def all_elements
-      map_children('*').map { |obj| obj.is_a?(Element) ? obj : obj.all_elements }.flatten
+      map_children(:*).map { |obj| obj.is_a?(Element) ? obj : obj.all_elements }.flatten
     end
 
     # Get all available attributes on the current stack level
     # @return [Array<Attribute>]
     def all_attributes
-      map_children('*').map { |obj| obj.is_a?(Attribute) ? obj : obj.all_attributes }.flatten
-    end
-
-    protected
-
-    # Define new object property
-    # @param [Symbol] name
-    # @param [Symbol] type
-    # @param [Hash] options
-    def self.property(name, type, options = {}, &block)
-      @properties[to_underscore(name)] = {
-        name:    name,
-        type:    type,
-        resolve: block,
-        **options
-      }
-    end
-
-    # Define new object child
-    # @param [Symbol] name
-    # @param [Class<BaseObject>, Array<Class<BaseObject>>] type
-    # @param [Hash] options
-    def self.child(name, type, options = {})
-      @children[to_underscore(name)] = {
-        name: name,
-        type: type,
-        **options
-      }
-    end
-
-    # Define new object child
-    # @param [Symbol] name
-    # @param [Class<BaseObject>] type
-    # @param [Hash] options
-    def self.link(name, type, options = {})
-      @links[to_underscore(name)] = {
-        name: name,
-        type: type,
-        **options
-      }
+      map_children(:*).map { |obj| obj.is_a?(Attribute) ? obj : obj.all_attributes }.flatten
     end
 
     # Get reader instance
@@ -221,13 +221,7 @@ module XsdReader
       reader.logger
     end
 
-    private
-
-    def self.to_underscore(string)
-      string.gsub(/([^A-Z])([A-Z]+)/, '\1_\2').downcase
-    end
-
-    def self.uncapitalize(string)
+    def uncapitalize(string)
       string.sub(/^([A-Z])/) { $1.tr!('[A-Z]', '[a-z]') }
     end
 
@@ -240,7 +234,7 @@ module XsdReader
       end
 
       @cache[symbol] ||=
-        if (property = @properties[symbol])
+        if (property = self.class.properties[symbol])
           # get value
           value = property[:resolve] ? property[:resolve].call : node[property[:name]]
           if value.nil?
@@ -255,13 +249,11 @@ module XsdReader
               value
             end
           end
-        elsif (child = @children[symbol])
-          element = self.class.uncapitalize(child[:type].to_s)
-          map_children(element)
-        elsif (link = @links[symbol])
-          element = self.class.uncapitalize(link[:type].to_s)
-          name    = send(link[:property])
-          object_by_name(element, name) if name
+        elsif (child = self.class.children[symbol])
+          child[:type].is_a?(Array) ? map_children(child[:type]) : map_child(child[:type])
+        elsif (link = self.class.links[symbol])
+          name = send(link[:property])
+          object_by_name(link[:type], name) if name
         else
           raise Error, "Tried to access unknown property #{symbol} on #{self.class.name}"
         end

@@ -7,19 +7,24 @@ module XsdReader
     include MinMaxOccurs
     include Referenced
 
+    # Optional. Specifies the name of the attribute. Name and ref attributes cannot both be present
+    # @!attribute name
+    # @return [String]
+    property :name, :string
+
     # Nested all object
     # @!attribute all
     # @return [All]
-    child :all, All
+    child :all, :all
 
     # Nested choice object
     # @!attribute choice
     # @return [Choice]
-    child :choice, Choice
+    child :choice, :choice
 
     # Nested sequence object
     # @!attribute sequence
     # @return [Sequence]
-    child :sequence, Sequence
+    child :sequence, :sequence
   end
 end

@@ -9,8 +9,8 @@ module XsdReader
     # @!attribute attribute_groups
     # @return [Array<AttributeGroup>]
     def self.included(obj)
-      obj.child :attributes, [Attribute]
-      obj.child :attribute_groups, [AttributeGroup]
+      obj.child :attributes, [:attribute]
+      obj.child :attribute_groups, [:attributeGroup]
     end
   end
 end

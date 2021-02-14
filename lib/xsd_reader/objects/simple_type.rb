@@ -5,20 +5,25 @@ module XsdReader
   # https://www.w3schools.com/xml/el_simpletype.asp
   class SimpleType < BaseObject
 
+    # Optional. Specifies the name of the attribute. Name and ref attributes cannot both be present
+    # @!attribute name
+    # @return [String]
+    property :name, :string
+
     # Nested restriction
     # @!attribute restriction
     # @return [Restriction, nil]
-    child :restriction, Restriction
+    child :restriction, :restriction
 
     # Nested union
     # @!attribute union
     # @return [Union, nil]
-    child :union, Union
+    child :union, :union
 
     # Nested list
     # @!attribute list
     # @return [List, nil]
-    child :list, List
+    child :list, :list
 
     # Determine if this is a linked type
     # @return [Boolean]

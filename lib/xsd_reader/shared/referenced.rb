@@ -10,8 +10,8 @@ module XsdReader
     # @!attribute reference
     # @return [BaseObject]
     def self.included(obj)
-      property :ref, :string
-      link :reference, obj, property: :ref
+      obj.property :ref, :string
+      obj.link :reference, obj, property: :ref
     end
 
     # Is object referenced?

@@ -13,11 +13,11 @@ module XsdReader
     # Get nested extension
     # @!attribute extension
     # @return [Extension, nil]
-    child :extension, Extension
+    child :extension, :extension
 
     # Get nested restriction
     # @!attribute restriction
     # @return [Restriction, nil]
-    child :restriction, Restriction
+    child :restriction, :restriction
   end
 end

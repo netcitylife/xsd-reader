@@ -5,7 +5,7 @@ module XsdReader
     # @!attribute elements
     # @return [Array<Element>]
     def self.included(obj)
-      obj.child :elements, [Element]
+      obj.child :elements, [:element]
     end
   end
 end

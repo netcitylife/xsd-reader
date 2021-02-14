@@ -6,6 +6,11 @@ module XsdReader
   class ComplexType < BaseObject
     include AttributeContainer
 
+    # Optional. Specifies the name of the attribute. Name and ref attributes cannot both be present
+    # @!attribute name
+    # @return [String]
+    property :name, :string
+
     # Optional. Specifies whether the complex type can be used in an instance document. True indicates that an element
     # cannot use this complex type directly but must use a complex type derived from this complex type. Default is false
     # @!attribute abstract
@@ -39,12 +44,12 @@ module XsdReader
     # Simple content object
     # @!attribute simple_content
     # @return [SimpleContent]
-    child :simple_content, SimpleContent
+    child :simple_content, :simpleContent
 
     # Complex content object
     # @!attribute complex_content
     # @return [ComplexContent]
-    child :complex_content, ComplexContent
+    child :complex_content, :complexContent
 
     # Determine if this is a linked type
     # @return [Boolean]

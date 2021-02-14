@@ -66,22 +66,22 @@ module XsdReader
     # Global complex types
     # @!attribute complex_types
     # @return [Array<ComplexType>]
-    child :complex_types, [ComplexType]
+    child :complex_types, [:complexType]
 
     # Global simple types
     # @!attribute simple_types
     # @return [Array<SimpleType>]
-    child :simple_types, [SimpleType]
+    child :simple_types, [:simpleType]
 
     # Global groups
     # @!attribute groups
     # @return [Array<Group>]
-    child :groups, [Group]
+    child :groups, [:group]
 
     # Get nested groups
     # @!attribute imports
     # @return [Array<Import>]
-    child :imports, [Import]
+    child :imports, [:import]
 
     # Get current schema object
     # @return [Schema]

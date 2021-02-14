@@ -3,6 +3,8 @@ module XsdReader
   # Parent elements: simpleType, simpleContent, complexContent
   # https://www.w3schools.com/xml/el_restriction.asp
   class Restriction < BaseObject
+    TYPE_PROPERTY = nil
+
     include Based
     include SimpleTyped
     include ComplexTyped
@@ -12,6 +14,10 @@ module XsdReader
       minExclusive minInclusive maxExclusive maxInclusive totalDigits
       fractionDigits length minLength maxLength enumeration whiteSpace pattern
     ].freeze
+
+    def all_elements
+      base_complex_type.all_elements + complex_type.all_elements
+    end
 
     # Get restriction facets
     # @return [Hash]
@@ -30,14 +36,6 @@ module XsdReader
         end
         hash
       end
-    end
-
-    private
-
-    # Get type attribute value
-    # @return [nil]
-    def self.type_property
-      nil
     end
   end
 end

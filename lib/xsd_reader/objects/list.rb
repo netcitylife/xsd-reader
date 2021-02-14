@@ -3,6 +3,8 @@ module XsdReader
   # Parent elements: simpleType
   # https://www.w3schools.com/xml/el_list.asp
   class List < BaseObject
+    TYPE_PROPERTY = :itemType
+
     include SimpleTyped
 
     # Specifies the name of a built-in data type or simpleType element defined in this or another schema.
@@ -10,13 +12,5 @@ module XsdReader
     # @!attribute item_type
     # @return [String, nil]
     property :itemType, :string
-
-    private
-
-    # Get type attribute value
-    # @return [Symbol]
-    def self.type_property
-      :itemType
-    end
   end
 end

@@ -7,5 +7,10 @@ module XsdReader
   class AttributeGroup < BaseObject
     include Referenced
     include AttributeContainer
+
+    # Optional. Specifies the name of the attribute. Name and ref attributes cannot both be present
+    # @!attribute name
+    # @return [String]
+    property :name, :string
   end
 end

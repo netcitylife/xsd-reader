@@ -6,8 +6,8 @@ module XsdReader
     # @!attribute complex_type
     # @return [ComplexType, nil]
     def self.included(obj)
-      obj.child :complex_type, ComplexType
-      obj.link :complex_type, ComplexType, property: obj.type_property
+      obj.child :complex_type, :complexType
+      obj.link :complex_type, :complexType, property: obj::TYPE_PROPERTY
     end
   end
 end

@@ -14,8 +14,8 @@ module XsdReader
     # Nested simple and built-in types
     # @return [Array<SimpleType, String>]
     def types
-      @types ||= map_children("simpleType") + member_types.map do |name|
-        object_by_name('simpleType', name) || name
+      @types ||= map_children(:simpleType) + member_types.map do |name|
+        object_by_name(:simpleType, name) || name
       end
     end
   end

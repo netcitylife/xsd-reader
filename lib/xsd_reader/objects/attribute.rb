@@ -4,8 +4,15 @@ module XsdReader
   # extension (both simpleContent and complexContent)
   # https://www.w3schools.com/xml/el_attribute.asp
   class Attribute < BaseObject
+    TYPE_PROPERTY = :type
+
     include SimpleTyped
     include Referenced
+
+    # Optional. Specifies the name of the attribute. Name and ref attributes cannot both be present
+    # @!attribute name
+    # @return [String]
+    property :name, :string
 
     # Optional. Specifies a default value for the attribute. Default and fixed attributes cannot both be present
     # @!attribute default
@@ -58,14 +65,6 @@ module XsdReader
     # @return [Boolean]
     def prohibited?
       use == 'prohibited'
-    end
-
-    private
-
-    # Get type attribute value
-    # @return [Symbol]
-    def self.type_property
-      :type
     end
   end
 end

@@ -3,17 +3,15 @@ module XsdReader
   # Parent elements: simpleContent, complexContent
   # https://www.w3schools.com/xml/el_extension.asp
   class Extension < BaseObject
+    TYPE_PROPERTY = nil
+
     include Based
     include SimpleTyped
     include ComplexTyped
     include AttributeContainer
 
-    private
-
-    # Get type attribute value
-    # @return [nil]
-    def self.type_property
-      nil
+    def all_elements
+      base_complex_type.all_elements + complex_type.all_elements
     end
   end
 end

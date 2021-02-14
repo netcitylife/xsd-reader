@@ -9,9 +9,5 @@ module XsdReader
     include SimpleTyped
     include ComplexTyped
     include AttributeContainer
-
-    def all_elements
-      base_complex_type.all_elements + complex_type.all_elements
-    end
   end
 end

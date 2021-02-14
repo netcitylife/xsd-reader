@@ -18,5 +18,13 @@ module XsdReader
       obj.link :base_complex_type, :complexType, property: :base
       obj.link :base_simple_type, :simpleType, property: :base
     end
+
+    def all_elements
+      super + (base_complex_type&.all_elements || [])
+    end
+
+    def all_attributes
+      super + (base_complex_type&.all_attributes || [])
+    end
   end
 end

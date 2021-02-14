@@ -72,8 +72,8 @@ module XsdReader
         next if result.nil?
         curname = curname.to_s
 
-        if curname =~ /^@/
-          result = result.all_attributes.find { |attr| attr.name == curname.sub(/^@/, '') }
+        if curname[0] == '@'
+          result = result.all_attributes.find { |attr| attr.name == curname[1..-1] }
         else
           result = result.all_elements.find { |elem| elem.name == curname }
         end

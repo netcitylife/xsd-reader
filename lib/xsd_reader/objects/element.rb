@@ -117,7 +117,7 @@ module XsdReader
     end
 
     def all_elements
-      complex_type.all_elements
+      complex_type&.all_elements || []
     end
   end
 end

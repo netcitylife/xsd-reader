@@ -5,48 +5,18 @@ module XsdReader
 
     class << self
       attr_reader :properties, :children, :links
-    end
 
-    def self.to_underscore(string)
-      string.to_s.gsub(/([^A-Z])([A-Z]+)/, '\1_\2').downcase.to_sym
-    end
+      def properties
+        @properties ||= {}
+      end
 
-    # Define new object property
-    # @param [Symbol] name
-    # @param [Symbol] type
-    # @param [Hash] options
-    def self.property(name, type, options = {}, &block)
-      @properties                      ||= {}
-      @properties[to_underscore(name)] = {
-        name:    name,
-        type:    type,
-        resolve: block,
-        **options
-      }
-    end
+      def links
+        @links ||= {}
+      end
 
-    # Define new object child
-    # @param [Symbol] name
-    # @param [Symbol, Array<Symbol>] type
-    # @param [Hash] options
-    def self.child(name, type, options = {})
-      @children                      ||= {}
-      @children[to_underscore(name)] = {
-        type: type,
-        **options
-      }
-    end
-
-    # Define new object child
-    # @param [Symbol] name
-    # @param [Symbol] type
-    # @param [Hash] options
-    def self.link(name, type, options = {})
-      @links                      ||= {}
-      @links[to_underscore(name)] = {
-        type: type,
-        **options
-      }
+      def children
+        @children ||= {}
+      end
     end
 
     # Optional. Specifies a unique ID for the element
@@ -117,8 +87,7 @@ module XsdReader
       name_local  = strip_prefix(name)
 
       # do not search for built-in types
-      schema_prefix = schema.namespace_prefix[0..-2]
-      return nil if schema_prefix == name_prefix
+      return nil if schema.namespace_prefix == name_prefix
 
       # determine schema for namespace
       search_schema = name_prefix ? schema_for_namespace(name_prefix) : schema
@@ -215,14 +184,45 @@ module XsdReader
       options[:reader]
     end
 
-    # Get logger instance
-    # @return [Logger]
-    def logger
-      reader.logger
+    protected
+
+    def self.to_underscore(string)
+      string.to_s.gsub(/([^A-Z])([A-Z]+)/, '\1_\2').downcase.to_sym
     end
 
-    def uncapitalize(string)
-      string.sub(/^([A-Z])/) { $1.tr!('[A-Z]', '[a-z]') }
+    # Define new object property
+    # @param [Symbol] name
+    # @param [Symbol] type
+    # @param [Hash] options
+    def self.property(name, type, options = {}, &block)
+      properties[to_underscore(name)] = {
+        name:    name,
+        type:    type,
+        resolve: block,
+        **options
+      }
+    end
+
+    # Define new object child
+    # @param [Symbol] name
+    # @param [Symbol, Array<Symbol>] type
+    # @param [Hash] options
+    def self.child(name, type, options = {})
+      children[to_underscore(name)] = {
+        type: type,
+        **options
+      }
+    end
+
+    # Define new object child
+    # @param [Symbol] name
+    # @param [Symbol] type
+    # @param [Hash] options
+    def self.link(name, type, options = {})
+      links[to_underscore(name)] = {
+        type: type,
+        **options
+      }
     end
 
     # Lookup for properties
@@ -233,30 +233,41 @@ module XsdReader
         return reference.send(symbol, *args)
       end
 
-      @cache[symbol] ||=
-        if (property = self.class.properties[symbol])
-          # get value
-          value = property[:resolve] ? property[:resolve].call : node[property[:name]]
-          if value.nil?
-            property[:default]
-          else
-            case property[:type]
-            when :integer
-              property[:name] == :maxOccurs && value == 'unbounded' ? :unbounded : value.to_i
-            when :boolean
-              !!value
-            else
-              value
-            end
-          end
-        elsif (child = self.class.children[symbol])
-          child[:type].is_a?(Array) ? map_children(child[:type]) : map_child(child[:type])
-        elsif (link = self.class.links[symbol])
-          name = send(link[:property])
-          object_by_name(link[:type], name) if name
-        else
-          raise Error, "Tried to access unknown property #{symbol} on #{self.class.name}"
+      # check cache first
+      return @cache[symbol] if @cache[symbol]
+
+      if (property = self.class.properties[symbol])
+        # get value
+        value  = property[:resolve] ? property[:resolve].call : node[property[:name]]
+        result = if value.nil?
+                   property[:default]
+                 else
+                   case property[:type]
+                   when :integer
+                     property[:name] == :maxOccurs && value == 'unbounded' ? :unbounded : value.to_i
+                   when :boolean
+                     !!value
+                   else
+                     value
+                   end
+                 end
+        return @cache[symbol] = result
+      end
+
+      if (link = self.class.links[symbol])
+        if (name = send(link[:property]))
+          return @cache[symbol] = object_by_name(link[:type], name)
         end
+      end
+
+      if (child = self.class.children[symbol])
+        result = child[:type].is_a?(Array) ? map_children(child[:type][0]) : map_child(child[:type])
+        return @cache[symbol] = result
+      end
+
+      super
+      # api = self.class.properties.keys + self.class.links.keys + self.class.children.keys
+      # raise Error, "Tried to access unknown object '#{symbol}' on '#{self.class.name}'. Available options are: #{api}"
     end
   end
 end

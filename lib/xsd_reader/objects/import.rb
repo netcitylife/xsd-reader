@@ -16,13 +16,13 @@ module XsdReader
     # @return [String, nil]
     property :schemaLocation, :string
 
-    # Get reader for import
+    # Get imported reader
     # @return [XsdReader::XML]
-    def reader
-      return @reader if @reader
+    def imported_reader
+      return @imported_reader if @imported_reader
       if download_path
         File.write(download_path, download) unless File.file?(download_path)
-        return @reader = XsdReader::XML.new(:xsd_file => download_path, logger: logger)
+        return @imported_reader = XsdReader::XML.new(:xsd_file => download_path, logger: reader.logger)
       end
 
       xml = if options[:xsd_imported_xml] && options[:xsd_imported_xml][schema_location]
@@ -30,7 +30,7 @@ module XsdReader
             else
               download
             end
-      @reader = XsdReader::XML.new(xsd_xml: xml, xsd_imported_xml: options[:xsd_imported_xml], logger: logger)
+      @imported_reader = XsdReader::XML.new(xsd_xml: xml, xsd_imported_xml: options[:xsd_imported_xml], logger: reader.logger)
     end
 
     def uri
@@ -44,7 +44,7 @@ module XsdReader
     end
 
     def download
-      @download ||= download_uri(self.uri)
+      @download ||= download_uri(uri)
     end
 
     def download_path
@@ -61,7 +61,7 @@ module XsdReader
     private
 
     def download_uri(uri)
-      logger.debug("Downloading import schema for namespace '#{namespace}' from '#{uri}'")
+      reader.logger.debug(XsdReader) {"Downloading import schema for namespace '#{namespace}' from '#{uri}'"}
       response = RestClient.get uri
       response.body
     end

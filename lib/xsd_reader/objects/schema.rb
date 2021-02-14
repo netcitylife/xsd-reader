@@ -108,11 +108,11 @@ module XsdReader
 
     # Get schema namespace prefix
     def namespace_prefix
-      @namespace_prefix ||= [namespaces.find { |ns| ns[1] =~ /XMLSchema/ }&.split(':')[1], nil].uniq.join(':')
+      @namespace_prefix ||= namespaces.find { |ns| ns[1] =~ /XMLSchema/ }&.first&.split(':')&.last
     end
 
     def namespaces
-      self.node ? self.node.namespaces : {}
+      node.namespaces || {}
     end
 
     def targets_namespace?(ns)
@@ -120,15 +120,18 @@ module XsdReader
     end
 
     # Override map_children on schema to get objects from all imported schemas
-    # @param [String] name
-    # @return [Array]
+    # @param [Symbol] name
+    # @return [Array<BaseObject>]
     def map_children(name)
       super + import_map_children(name)
     end
 
+    # Get children from all imported schemas
+    # @param [Symbol] name
+    # @return [Array<BaseObject>]
     def import_map_children(name)
-      return [] if name == 'import'
-      imports.map { |import| import.reader.schema.map_children(name) }.flatten
+      return [] if name.to_sym == :import
+      imports.map { |import| import.imported_reader.schema.map_children(name) }.flatten
     end
 
     def import_by_namespace(ns)

@@ -11,7 +11,7 @@ module XsdReader
     # @return [BaseObject]
     def self.included(obj)
       obj.property :ref, :string
-      obj.link :reference, obj, property: :ref
+      obj.link :reference, obj.to_s.split('::').last.downcase.to_sym, property: :ref
     end
 
     # Is object referenced?

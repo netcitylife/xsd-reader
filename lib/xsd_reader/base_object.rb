@@ -159,7 +159,7 @@ module XsdReader
     # @param [String, nil] name Name to strip from
     # @return [String, nil]
     def get_prefix(name)
-      name&.include?(':') ? name.split(':').first : name
+      name&.include?(':') ? name.split(':').first : nil
     end
 
     # Return element documentation

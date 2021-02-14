@@ -26,6 +26,9 @@ module XsdReader
       "unique"         => Unique,
       "selector"       => Selector,
       "field"          => Field,
+      "annotation"     => Annotation,
+      "documentation"  => Documentation,
+      "appinfo"        => Appinfo,
     }.freeze
 
     def initialize(options = {})

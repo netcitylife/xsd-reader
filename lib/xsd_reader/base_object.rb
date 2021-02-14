@@ -169,6 +169,11 @@ module XsdReader
     # Get all available elements on the current stack level
     # @return [Array<Element>]
     def all_elements
+      # exclude element that can not have elements
+      if [Annotation].include?(self.class)
+        return []
+      end
+
       map_children(:*).map { |obj| obj.is_a?(Element) ? obj : obj.all_elements }.flatten
     end
 
@@ -187,7 +192,7 @@ module XsdReader
     protected
 
     def self.to_underscore(string)
-      string.to_s.gsub(/([^A-Z])([A-Z]+)/, '\1_\2').downcase.to_sym
+      string.to_s.gsub(/([^A-Z])([A-Z]+)/, '\1_\2').sub(':', '_').downcase.to_sym
     end
 
     # Define new object property

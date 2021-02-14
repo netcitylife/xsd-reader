@@ -29,6 +29,9 @@ module XsdReader
     # @!attribute id
     # @return [String]
     # property :id, :string
+    def id
+      node['id']
+    end
 
     def initialize(options = {})
       @options = options

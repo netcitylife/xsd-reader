@@ -51,7 +51,7 @@ module XsdReader
       if schema.targets_namespace?(prefix)
         schema
       elsif (import = schema.import_by_namespace(prefix))
-        import.reader.schema
+        import.imported_reader.schema
       else
         raise Error, "Schema not found for namespace '#{prefix}' in '#{schema.id || schema.target_namespace}'"
       end
@@ -226,21 +226,19 @@ module XsdReader
     end
 
     # Lookup for properties
-    def method_missing(symbol, *args)
-
-      # if object has reference - proxy call to target object
-      if node['ref']
-        return reference.send(symbol, *args)
-      end
+    # @param [Symbol] method
+    # @param [Array] args
+    def method_missing(method, *args)
 
       # check cache first
-      return @cache[symbol] if @cache[symbol]
+      return @cache[method] if @cache[method]
 
-      if (property = self.class.properties[symbol])
-        # get value
-        value  = property[:resolve] ? property[:resolve].call : node[property[:name]]
+      # check for property first
+      if (property = self.class.properties[method])
+        value  = property[:resolve] ? property[:resolve].call : node[property[:name].to_s]
         result = if value.nil?
-                   property[:default]
+                   # if object has reference - search property in referenced object
+                   node['ref'] ? reference.send(method, *args) : property[:default]
                  else
                    case property[:type]
                    when :integer
@@ -251,23 +249,37 @@ module XsdReader
                      value
                    end
                  end
-        return @cache[symbol] = result
+        return @cache[method] = result
       end
 
-      if (link = self.class.links[symbol])
+      # if object has ref it cannot contain any type and children, so proxy call to target object
+      if node['ref'] && method != :ref && method != :reference
+        return reference.send(method, *args)
+      end
+
+      # then check for linked types
+      if (link = self.class.links[method])
         if (name = send(link[:property]))
-          return @cache[symbol] = object_by_name(link[:type], name)
+          return @cache[method] = object_by_name(link[:type], name)
         end
       end
 
-      if (child = self.class.children[symbol])
+      # last check for nested objects
+      if (child = self.class.children[method])
         result = child[:type].is_a?(Array) ? map_children(child[:type][0]) : map_child(child[:type])
-        return @cache[symbol] = result
+        return @cache[method] = result
       end
 
       super
       # api = self.class.properties.keys + self.class.links.keys + self.class.children.keys
-      # raise Error, "Tried to access unknown object '#{symbol}' on '#{self.class.name}'. Available options are: #{api}"
+      # raise Error, "Tried to access unknown object '#{method}' on '#{self.class.name}'. Available options are: #{api}"
+    end
+
+    # Does object has property/link/child?
+    # @param [Symbol] method
+    # @param [Array] args
+    def respond_to_missing?(method, *args)
+      self.class.properties[method] || self.class.links[method] || self.class.children[method] || super
     end
   end
 end

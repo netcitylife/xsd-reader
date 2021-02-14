@@ -12,8 +12,8 @@ module XsdReader
     # @!attribute max_occurs
     # @return [Integer, Symbol]
     def self.included(obj)
-      obj.property :minOccurs, :integer, optional: true, default: 1
-      obj.property :maxOccurs, :integer, optional: true, default: 1
+      obj.property :minOccurs, :integer, default: 1
+      obj.property :maxOccurs, :integer, default: 1
     end
   end
 end

@@ -252,7 +252,7 @@ module XsdReader
 
       # check for property first
       if (property = self.class.properties[method])
-        value  = property[:resolve] ? property[:resolve].call : node[property[:name].to_s]
+        value  = property[:resolve] ? property[:resolve].call(self) : node[property[:name].to_s]
         result = if value.nil?
                    # if object has reference - search property in referenced object
                    node['ref'] ? reference.send(method, *args) : property[:default]

@@ -7,8 +7,8 @@ module XsdReader
     # Optional. Specifies a list of built-in data types or simpleType elements defined in a schema
     # @!attribute member_types
     # @return [Array<String>]
-    property :memberTypes, :array, default: [] do
-      node['memberTypes']&.split(' ')
+    property :memberTypes, :array, default: [] do |union|
+      union.node['memberTypes']&.split(' ')
     end
 
     # Nested simple and built-in types

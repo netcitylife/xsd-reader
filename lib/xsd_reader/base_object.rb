@@ -177,7 +177,7 @@ module XsdReader
 
     # Get all available elements on the current stack level
     # @return [Array<Element>]
-    def all_elements
+    def all_elements(*)
       # exclude element that can not have elements
       return [] if NO_ELEMENTS_CONTAINER.include?(self.class.to_s.sub('XsdReader::', ''))
 
@@ -187,7 +187,7 @@ module XsdReader
 
     # Get all available attributes on the current stack level
     # @return [Array<Attribute>]
-    def all_attributes
+    def all_attributes(*)
       # exclude element that can not have elements
       return [] if NO_ATTRIBUTES_CONTAINER.include?(self.class.to_s.sub('XsdReader::', ''))
 

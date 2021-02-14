@@ -91,13 +91,13 @@ module XsdReader
 
     # Get all available root elements
     # @return [Array<Element>]
-    def all_elements
+    def all_elements(*)
       elements
     end
 
     # Get all available root attributes
     # @return [Array<Attribute>]
-    def all_attributes
+    def all_attributes(*)
       attributes
     end
 

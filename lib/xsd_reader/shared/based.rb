@@ -14,6 +14,7 @@ module XsdReader
     # @!attribute base_simple_type
     # @return [SimpleType, nil]
     def self.included(obj)
+      obj.property :base, :string, required: true
       obj.link :base_complex_type, :complexType, property: :base
       obj.link :base_simple_type, :simpleType, property: :base
     end

@@ -273,7 +273,8 @@ module XsdReader
 
       # then check for linked types
       if (link = self.class.links[method])
-        if (name = send(link[:property]))
+        name = link[:property] ? send(link[:property]) : nil
+        if name
           return @cache[method] = object_by_name(link[:type], name)
         end
       end

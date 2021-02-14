@@ -7,7 +7,6 @@ module XsdReader
 
     include Based
     include SimpleTyped
-    include ComplexTyped
     include AttributeContainer
 
     FACET_ELEMENTS = %w[

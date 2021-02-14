@@ -29,7 +29,7 @@ module XsdReader
       "annotation"     => Annotation,
       "documentation"  => Documentation,
       "appinfo"        => Appinfo,
-      'any_attribute'  => AnyAttribute
+      'anyAttribute'   => AnyAttribute
     }.freeze
 
     def initialize(options = {})

@@ -11,11 +11,11 @@ module XsdReader
     end
 
     def all_elements(include_type = true)
-      super + (include_type && complex_type ? complex_type.all_elements : [])
+      super + (include_type && complex_type&.linked? ? complex_type.all_elements : [])
     end
 
     def all_attributes(include_type = true)
-      super + (include_type && complex_type ? complex_type.all_attributes : [])
+      super + (include_type && complex_type&.linked? ? complex_type.all_attributes : [])
     end
   end
 end

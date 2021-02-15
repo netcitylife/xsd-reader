@@ -183,10 +183,12 @@ module XsdReader
 
       # map children recursive
       map_children(:*).map do |obj|
-        return obj if obj.is_a?(Element)
-
-        # get elements considering references
-        (obj.is_a?(Referenced) && obj.ref ? obj.reference : obj).all_elements
+        if obj.is_a?(Element)
+          obj
+        else
+          # get elements considering references
+          (obj.is_a?(Referenced) && obj.ref ? obj.reference : obj).all_elements
+        end
       end.flatten
     end
 
@@ -198,10 +200,12 @@ module XsdReader
 
       # map children recursive
       map_children(:*).map do |obj|
-        return obj if obj.is_a?(Attribute)
-
-        # get attributes considering references
-        (obj.is_a?(Referenced) && obj.ref ? obj.reference : obj).all_attributes
+        if obj.is_a?(Attribute)
+          obj
+        else
+          # get attributes considering references
+          (obj.is_a?(Referenced) && obj.ref ? obj.reference : obj).all_attributes
+        end
       end.flatten
     end
 

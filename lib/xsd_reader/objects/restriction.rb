@@ -25,6 +25,9 @@ module XsdReader
           if key == 'enumeration'
             hash[key]        ||= {}
             hash[key][value] = documentation_for(node)
+          elsif key == 'pattern'
+            hash[key] ||= []
+            hash[key].push(value)
           else
             hash[key] = value
           end

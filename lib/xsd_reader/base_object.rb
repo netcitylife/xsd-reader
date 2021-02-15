@@ -182,7 +182,12 @@ module XsdReader
       return [] if NO_ELEMENTS_CONTAINER.include?(self.class.to_s.sub('XsdReader::', ''))
 
       # map children recursive
-      map_children(:*).map { |obj| obj.is_a?(Element) ? obj : obj.all_elements }.flatten
+      map_children(:*).map do |obj|
+        return obj if obj.is_a?(Element)
+
+        # get elements considering references
+        (obj.is_a?(Referenced) && obj.ref ? obj.reference : obj).all_elements
+      end.flatten
     end
 
     # Get all available attributes on the current stack level
@@ -192,7 +197,12 @@ module XsdReader
       return [] if NO_ATTRIBUTES_CONTAINER.include?(self.class.to_s.sub('XsdReader::', ''))
 
       # map children recursive
-      map_children(:*).map { |obj| obj.is_a?(Attribute) ? obj : obj.all_attributes }.flatten
+      map_children(:*).map do |obj|
+        return obj if obj.is_a?(Attribute)
+
+        # get attributes considering references
+        (obj.is_a?(Referenced) && obj.ref ? obj.reference : obj).all_attributes
+      end.flatten
     end
 
     # Get reader instance

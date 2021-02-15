@@ -317,7 +317,7 @@ module XsdReader
     # Get mapped element name
     # @return [Symbol]
     def self.mapped_name
-      @mapped_name ||= XML::CLASS_MAP.each { |k, v| return k.to_sym if v == self }
+      @mapped_name ||= :XML::CLASS_MAP.each { |k, v| return k.to_sym if v == self }
     end
   end
 end

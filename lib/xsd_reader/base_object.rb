@@ -4,10 +4,10 @@ module XsdReader
     attr_reader :options
 
     # Objects that can not have nested elements
-    NO_ELEMENTS_CONTAINER = %w[Annotation SimpleType AttributeGroup Attribute Unique Union SimpleContent List Any AnyAttribute].freeze
+    NO_ELEMENTS_CONTAINER = %i[annotation simpleType attributeGroup attribute unique union simpleContent list any anyAttribute].freeze
 
     # Objects that cannot have nested attributes
-    NO_ATTRIBUTES_CONTAINER = %w[Annotation Unique AnyAttribute All Attribute Choice Sequence Group].freeze
+    NO_ATTRIBUTES_CONTAINER = %i[annotation unique anyAttribute all attribute choice sequence group].freeze
 
     class << self
       attr_reader :properties, :children, :links
@@ -179,7 +179,7 @@ module XsdReader
     # @return [Array<Element>]
     def all_elements(*)
       # exclude element that can not have elements
-      return [] if NO_ELEMENTS_CONTAINER.include?(self.class.to_s.sub('XsdReader::', ''))
+      return [] if NO_ELEMENTS_CONTAINER.include?(self.class.mapped_name)
 
       # map children recursive
       map_children(:*).map do |obj|
@@ -196,7 +196,7 @@ module XsdReader
     # @return [Array<Attribute>]
     def all_attributes(*)
       # exclude element that can not have elements
-      return [] if NO_ATTRIBUTES_CONTAINER.include?(self.class.to_s.sub('XsdReader::', ''))
+      return [] if NO_ATTRIBUTES_CONTAINER.include?(self.class.mapped_name)
 
       # map children recursive
       map_children(:*).map do |obj|
@@ -312,6 +312,12 @@ module XsdReader
     # @param [Array] args
     def respond_to_missing?(method, *args)
       self.class.properties[method] || self.class.links[method] || self.class.children[method] || super
+    end
+
+    # Get mapped element name
+    # @return [Symbol]
+    def self.mapped_name
+      @mapped_name ||= XML::CLASS_MAP.each { |k, v| return k.to_sym if v == self }
     end
   end
 end

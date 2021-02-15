@@ -317,7 +317,12 @@ module XsdReader
     # Get mapped element name
     # @return [Symbol]
     def self.mapped_name
-      @mapped_name ||= :XML::CLASS_MAP.each { |k, v| return k.to_sym if v == self }
+      # @mapped_name ||= XML::CLASS_MAP.each { |k, v| return k.to_sym if v == self }
+      @mapped_name ||= begin
+                         name    = self.name.split('::').last
+                         name[0] = name[0].downcase
+                         name.to_sym
+                       end
     end
   end
 end

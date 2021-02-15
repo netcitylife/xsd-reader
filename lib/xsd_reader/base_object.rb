@@ -66,7 +66,7 @@ module XsdReader
     # @param [String] prefix
     # @return [Schema]
     def schema_for_namespace(prefix)
-      if schema.target_namespace_prefix == prefix
+      if schema.targets_namespace?(prefix)
         schema
       elsif (import = schema.import_by_namespace(prefix))
         import.imported_reader.schema

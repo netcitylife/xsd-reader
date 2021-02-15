@@ -101,7 +101,7 @@ module XsdReader
       attributes
     end
 
-    # Get target namespace prefix
+    # Get target namespace prefix. There may be more than one prefix, but we return only first defined
     # @return [String]
     def target_namespace_prefix
       @target_namespace_prefix ||= namespaces.key(target_namespace)&.sub(/^xmlns:?/, '') || ''
@@ -111,6 +111,13 @@ module XsdReader
     # @return [String]
     def namespace_prefix
       @namespace_prefix ||= namespaces.key(XML_SCHEMA).sub(/^xmlns:?/, '')
+    end
+
+    # Check if namespace is a target namespace
+    # @param [String] prefix
+    # @return [Boolean]
+    def targets_namespace?(prefix)
+      namespaces[prefix.empty? ? 'xmlns' : "xmlns:#{prefix}"] == target_namespace
     end
 
     # Override map_children on schema to get objects from all imported schemas

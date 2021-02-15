@@ -292,9 +292,7 @@ module XsdReader
       if (link = self.class.links[method])
         name = link[:property] ? send(link[:property]) : nil
         if name
-          result = object_by_name(link[:type], name)
-          raise Error, "Can't find linked object '#{name}' for #{node.name}" if result.nil?
-          return @cache[method] = result
+          return @cache[method] = object_by_name(link[:type], name)
         end
       end
 

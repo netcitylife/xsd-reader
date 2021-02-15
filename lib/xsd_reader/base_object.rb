@@ -9,6 +9,9 @@ module XsdReader
     # Objects that cannot have nested attributes
     NO_ATTRIBUTES_CONTAINER = %i[annotation unique anyAttribute all attribute choice sequence group].freeze
 
+    # Base XMLSchema namespace
+    XML_SCHEMA = 'http://www.w3.org/2001/XMLSchema'
+
     class << self
       attr_reader :properties, :children, :links
 
@@ -46,18 +49,24 @@ module XsdReader
       options[:node]
     end
 
+    # Get current namespaces
+    # @return [Hash]
+    def namespaces
+      node.namespaces || {}
+    end
+
     # Get child nodes
     # @param [Symbol] name
     # @return [Nokogiri::XML::NodeSet]
     def nodes(name = :*)
-      node.xpath("./xs:#{name}", { 'xs' => 'http://www.w3.org/2001/XMLSchema' })
+      node.xpath("./xs:#{name}", { 'xs' => XML_SCHEMA })
     end
 
     # Get schema object for specified namespace prefix
     # @param [String] prefix
     # @return [Schema]
     def schema_for_namespace(prefix)
-      if schema.targets_namespace?(prefix)
+      if schema.target_namespace_prefix == prefix
         schema
       elsif (import = schema.import_by_namespace(prefix))
         import.imported_reader.schema
@@ -99,11 +108,10 @@ module XsdReader
       return nil if schema.namespace_prefix == name_prefix
 
       # determine schema for namespace
-      search_schema = name_prefix ? schema_for_namespace(name_prefix) : schema
+      search_schema = schema_for_namespace(name_prefix)
 
       # find element in target schema
-      namespace = { 'xs' => 'http://www.w3.org/2001/XMLSchema' }
-      result    = search_schema.node.xpath("//xs:#{node_name}[@name=\"#{name_local}\"]", namespace).first
+      result = search_schema.node.xpath("//xs:#{node_name}[@name=\"#{name_local}\"]", { 'xs' => XML_SCHEMA }).first
 
       result ? search_schema.node_to_object(result) : nil
     end
@@ -157,9 +165,9 @@ module XsdReader
 
     # Get namespace prefix from node name
     # @param [String, nil] name Name to strip from
-    # @return [String, nil]
+    # @return [String]
     def get_prefix(name)
-      name&.include?(':') ? name.split(':').first : nil
+      name&.include?(':') ? name.split(':').first : ''
     end
 
     # Return element documentation
@@ -172,7 +180,7 @@ module XsdReader
     # @param [Nokogiri::Xml::Node] node
     # @return [Array<String>]
     def documentation_for(node)
-      node.xpath('./xs:annotation/xs:documentation/text()', { 'xs' => 'http://www.w3.org/2001/XMLSchema' }).map(&:to_s).map(&:strip)
+      node.xpath('./xs:annotation/xs:documentation/text()', { 'xs' => XML_SCHEMA }).map(&:to_s).map(&:strip)
     end
 
     # Get all available elements on the current stack level

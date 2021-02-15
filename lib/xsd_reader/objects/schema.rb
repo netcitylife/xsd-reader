@@ -89,34 +89,28 @@ module XsdReader
       self
     end
 
-    # Get all available root elements
+    # Get all available root elements. Overrides base implementation for better speed
     # @return [Array<Element>]
     def all_elements(*)
       elements
     end
 
-    # Get all available root attributes
+    # Get all available root attributes. Overrides base implementation for better speed
     # @return [Array<Attribute>]
     def all_attributes(*)
       attributes
     end
 
+    # Get target namespace prefix
+    # @return [String]
     def target_namespace_prefix
-      return nil unless target_namespace
-      namespaces.select { |k, v| v == target_namespace }.keys.first.sub('xmlns:', '')
+      @target_namespace_prefix ||= namespaces.key(target_namespace)&.sub(/^xmlns:?/, '') || ''
     end
 
     # Get schema namespace prefix
+    # @return [String]
     def namespace_prefix
-      @namespace_prefix ||= namespaces.find { |ns| ns[1] =~ /XMLSchema/ }&.first&.split(':')&.last
-    end
-
-    def namespaces
-      node.namespaces || {}
-    end
-
-    def targets_namespace?(ns)
-      target_namespace == ns || target_namespace == namespaces["xmlns:#{ns}"]
+      @namespace_prefix ||= namespaces.key(XML_SCHEMA).sub(/^xmlns:?/, '')
     end
 
     # Override map_children on schema to get objects from all imported schemas

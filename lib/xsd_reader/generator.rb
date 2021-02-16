@@ -26,7 +26,8 @@ module XsdReader
     # @param [Builder::XmlMarkup] xml
     # @param [Element] element
     # @param [Hash] data
-    def build_element(xml, element, data)
+    # @param [String, nil] parent_namespace
+    def build_element(xml, element, data, parent_namespace = nil)
 
       # handle repeated items
       if !element.multiple_allowed? && data.is_a?(Array)
@@ -35,8 +36,6 @@ module XsdReader
 
       # iterate through each item
       (data.is_a?(Array) ? data : [data]).each do |item|
-        puts "item: #{item}"
-        puts "element: #{element.name}"
         # get item data
         data = item[element.name]
         next unless data
@@ -48,17 +47,22 @@ module XsdReader
         end.compact.to_h
 
         # prepare namespace
-        namespace = :tag!
+        prefix    = element.schema.target_namespace_prefix
+        namespace = element.schema.target_namespace
+        name      = [prefix, element.name].compact.join(':').to_sym
+        if parent_namespace != namespace
+          attributes["xmlns:#{prefix}"] = namespace
+        end
 
         # generate element
         if element.complex?
-          xml.__send__(namespace, element.name.to_sym, attributes) do
+          xml.tag!(name, attributes) do
             element.all_elements.each do |elem|
-              build_element(xml, elem, data)
+              build_element(xml, elem, data, namespace)
             end
           end
         else
-          xml.__send__(namespace, element.name.to_sym, attributes, (data.is_a?(Hash) ? data['#text'] : data))
+          xml.tag!(name, attributes, (data.is_a?(Hash) ? data['#text'] : data))
         end
       end
     end

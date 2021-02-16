@@ -7,6 +7,7 @@ module XsdReader
     # @param [Hash] data
     # @param [String, Array<String>] element
     # @param [Builder::XmlMarkup] builder
+    # @return [Builder::XmlMarkup]
     def generate(data, element = nil, builder = nil)
       # find root element
       root = find_root_element(element)
@@ -18,7 +19,7 @@ module XsdReader
       @namespace_index = 0
       build_element(builder, root, data)
 
-      builder.target!
+      builder
     end
 
     private

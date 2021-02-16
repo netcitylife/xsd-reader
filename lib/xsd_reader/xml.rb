@@ -4,6 +4,7 @@ require 'forwardable'
 module XsdReader
   class XML
     extend Forwardable
+    include Generator
 
     attr_reader :options, :object_cache
 

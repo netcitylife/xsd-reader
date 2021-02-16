@@ -103,6 +103,12 @@ module XsdReader
       max_occurs == :unbounded || max_occurs > 1
     end
 
+    # Determine if element has complex content
+    # @return [Boolean]
+    def complex?
+      !complex_type.nil?
+    end
+
     # Determine if element is inside choice
     # @return [Boolean]
     def choice?

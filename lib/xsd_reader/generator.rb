@@ -15,6 +15,7 @@ module XsdReader
       builder = builder || default_builder
 
       # build element tree
+      @namespace_index = 0
       build_element(builder, root, data)
 
       builder.target!
@@ -26,43 +27,53 @@ module XsdReader
     # @param [Builder::XmlMarkup] xml
     # @param [Element] element
     # @param [Hash] data
-    # @param [String, nil] parent_namespace
-    def build_element(xml, element, data, parent_namespace = nil)
+    # @param [Hash] namespaces
+    def build_element(xml, element, data, namespaces = {})
+
+      # get item data
+      data = data[element.name]
+      raise Error, "Element #{element.name} is required, but no data in provided for it" if element.required? && data.nil?
+      return unless data
 
       # handle repeated items
-      if !element.multiple_allowed? && data.is_a?(Array)
-        raise Error, "Element is not allowed to occur multiple times, but an array is provided"
+      if element.multiple_allowed?
+        raise Error, "Element is allowed to occur multiple times, but non-array is provided" unless data.is_a?(Array)
+      else
+        raise Error, "Element is not allowed to occur multiple times, but an array is provided" if data.is_a?(Array)
+        data = [data]
       end
 
       # iterate through each item
-      (data.is_a?(Array) ? data : [data]).each do |item|
-        # get item data
-        data = item[element.name]
-        next unless data
+      data.each do |item|
 
         # prepare attributes
         attributes = element.all_attributes.map do |attribute|
-          value = data["@#{attribute.name}"]
+          value = item["@#{attribute.name}"]
           value ? [attribute.name, value] : nil
         end.compact.to_h
 
-        # prepare namespace
-        prefix    = element.schema.target_namespace_prefix
-        namespace = element.schema.target_namespace
-        name      = [prefix, element.name].compact.join(':').to_sym
-        if parent_namespace != namespace
-          attributes["xmlns:#{prefix}"] = namespace
-        end
-
         # generate element
         if element.complex?
-          xml.tag!(name, attributes) do
-            element.all_elements.each do |elem|
-              build_element(xml, elem, data, namespace)
+          all_elements = element.all_elements
+
+          # get namespaces for current element and it's children
+          prefix = nil
+          [*all_elements, element].each do |elem|
+            namespace = elem.schema.target_namespace
+            unless (prefix = namespaces.key(namespace))
+              prefix             = "tns#{@namespace_index += 1}"
+              namespaces[prefix] = attributes["xmlns:#{prefix}"] = namespace
+            end
+          end
+
+          xml.tag!("#{prefix}:#{element.name}", attributes) do
+            all_elements.each do |elem|
+              build_element(xml, elem, item, namespaces.dup)
             end
           end
         else
-          xml.tag!(name, attributes, (data.is_a?(Hash) ? data['#text'] : data))
+          prefix = namespaces.key(element.schema.target_namespace) || element.schema.target_namespace_prefix
+          xml.tag!("#{prefix}:#{element.name}", attributes, (item.is_a?(Hash) ? item['#text'] : item))
         end
       end
     end

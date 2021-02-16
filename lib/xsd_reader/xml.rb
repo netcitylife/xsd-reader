@@ -37,7 +37,20 @@ module XsdReader
       "annotation"     => Annotation,
       "documentation"  => Documentation,
       "appinfo"        => Appinfo,
-      'anyAttribute'   => AnyAttribute
+      'anyAttribute'   => AnyAttribute,
+      # Restriction facets
+      'minExclusive'   => Facet,
+      'minInclusive'   => Facet,
+      'maxExclusive'   => Facet,
+      'maxInclusive'   => Facet,
+      'totalDigits'    => Facet,
+      'fractionDigits' => Facet,
+      'length'         => Facet,
+      'minLength'      => Facet,
+      'maxLength'      => Facet,
+      'enumeration'    => Facet,
+      'whiteSpace'     => Facet,
+      'pattern'        => Facet,
     }.freeze
 
     def initialize(options = {})

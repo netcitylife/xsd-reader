@@ -7,7 +7,7 @@ module XsdReader
     NO_ELEMENTS_CONTAINER = %i[annotation simpleType attributeGroup attribute unique union simpleContent list any anyAttribute].freeze
 
     # Objects that cannot have nested attributes
-    NO_ATTRIBUTES_CONTAINER = %i[annotation unique anyAttribute all attribute choice sequence group simpleType].freeze
+    NO_ATTRIBUTES_CONTAINER = %i[annotation unique anyAttribute all attribute choice sequence group simpleType facet].freeze
 
     # Base XMLSchema namespace
     XML_SCHEMA = 'http://www.w3.org/2001/XMLSchema'

@@ -82,7 +82,6 @@ module XsdReader
     # Find root element with provided lookup
     # @param [String, Array<String>, nil] lookup
     def find_root_element(lookup)
-
       if lookup
         element = schema[*lookup]
         raise Error, "Cant find start element #{lookup}" unless element.is_a?(Element)

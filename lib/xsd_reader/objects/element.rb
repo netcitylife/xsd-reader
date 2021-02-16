@@ -106,7 +106,7 @@ module XsdReader
     # Determine if element has complex content
     # @return [Boolean]
     def complex?
-      !complex_type.nil?
+      complex_type && !complex_type.simple_content
     end
 
     # Determine if element is inside choice

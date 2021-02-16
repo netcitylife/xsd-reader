@@ -74,7 +74,8 @@ module XsdReader
           end
         else
           prefix = namespaces.key(element.schema.target_namespace) || element.schema.target_namespace_prefix
-          xml.tag!("#{prefix}:#{element.name}", attributes, (item.is_a?(Hash) ? item['#text'] : item))
+          value  = item.is_a?(Hash) ? item['#text'] : item
+          xml.tag!("#{prefix}:#{element.name}", attributes, (value == '' ? nil : value))
         end
       end
     end

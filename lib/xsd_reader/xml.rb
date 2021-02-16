@@ -1,8 +1,15 @@
 require 'nokogiri'
+require 'forwardable'
 
 module XsdReader
   class XML
+    extend Forwardable
+
     attr_reader :options, :object_cache
+
+    # Proxy lookup methods to schema
+    def_delegators :schema, :[], :elements, :all_elements, :attributes, :attribute_groups, :all_attributes,
+                   :complex_types, :simple_types, :groups, :imports
 
     CLASS_MAP = {
       "schema"         => Schema,
@@ -44,8 +51,8 @@ module XsdReader
     end
 
     def default_logger
-      @default_logger ||= Logger.new(STDOUT).tap do |logr|
-        logr.level = Logger::WARN
+      @default_logger ||= Logger.new(STDOUT).tap do |logger|
+        logger.level = Logger::WARN
       end
     end
 
@@ -64,24 +71,6 @@ module XsdReader
 
     def schema
       @schema ||= Schema.new(self.options.merge(node: schema_node, reader: self))
-    end
-
-    # Get element by path
-    # @return [Element, Attribute, nil]
-    def [](*args)
-      schema[*args]
-    end
-
-    def elements
-      schema.elements
-    end
-
-    def imports
-      schema.imports
-    end
-
-    def simple_types
-      schema.simple_types
     end
 
     def schema_for_namespace(_ns)

@@ -5,8 +5,9 @@ module XsdReader
   class XML
     extend Forwardable
     include Generator
+    include Validator
 
-    attr_reader :options, :object_cache
+    attr_reader :options, :object_cache, :xsd
 
     # Proxy lookup methods to schema
     def_delegators :schema, :[], :elements, :all_elements, :attributes, :attribute_groups, :all_attributes,
@@ -53,11 +54,14 @@ module XsdReader
       'pattern'        => Facet,
     }.freeze
 
-    def initialize(options = {})
+    def initialize(xsd, **options)
+      # Base input validation
+      raise Error, "xsd is not a Pathname nor a string" unless xsd.is_a?(Pathname) || xsd.is_a?(String)
+      raise Error, "options is not a hash" unless options.is_a?(Hash)
+
+      @xsd          = xsd
       @options      = options
       @object_cache = {}
-
-      raise "#{self.class}.new expects a hash parameter" unless @options.is_a?(Hash)
     end
 
     def logger
@@ -71,11 +75,19 @@ module XsdReader
     end
 
     def xml
-      @xsd_xml ||= options[:xsd_xml] || File.read(options[:xsd_file])
+      @xsd_xml ||= xsd.is_a?(Pathname) ? File.read(xsd) : xsd
+    end
+
+    def imported_xsd
+      @imported_xsd ||= options[:imported_xsd] || {}
+    end
+
+    def tmp_dir
+      @tmp_dir ||= options[:tmp_dir]
     end
 
     def doc
-      @doc ||= Nokogiri.XML(xml)
+      @doc ||= Nokogiri::XML(xml)
     end
 
     def schema_node

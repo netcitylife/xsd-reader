@@ -177,7 +177,7 @@ module XsdReader
     end
 
     # Return documentation for specified node
-    # @param [Nokogiri::Xml::Node] node
+    # @param [Nokogiri::XML::Node] node
     # @return [Array<String>]
     def documentation_for(node)
       node.xpath('./xs:annotation/xs:documentation/text()', { 'xs' => XML_SCHEMA }).map(&:to_s).map(&:strip)

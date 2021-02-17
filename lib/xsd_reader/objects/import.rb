@@ -20,49 +20,32 @@ module XsdReader
     # @return [XsdReader::XML]
     def imported_reader
       return @imported_reader if @imported_reader
-      if download_path
-        File.write(download_path, download) unless File.file?(download_path)
-        return @imported_reader = XsdReader::XML.new(:xsd_file => download_path, logger: reader.logger)
-      end
 
-      xml = if options[:xsd_imported_xml] && options[:xsd_imported_xml][schema_location]
-              options[:xsd_imported_xml][schema_location]
+      xml = if reader.imported_xsd[schema_location]
+              reader.imported_xsd[schema_location]
+            elsif schema_location =~ /^https?:/
+              download_uri(schema_location)
+            elsif (path = local_path)
+              path
             else
-              download
+              namespace.gsub(/#{File.basename(schema_location, '.*')}$/, '').to_s + schema_location
             end
-      @imported_reader = XsdReader::XML.new(xsd_xml: xml, xsd_imported_xml: options[:xsd_imported_xml], logger: reader.logger)
+
+      @imported_reader = XsdReader::XML.new(xml, imported_xsd: reader.imported_xsd, logger: reader.logger)
     end
 
-    def uri
-      if namespace =~ /\.xsd$/
-        namespace
-      elsif schema_location =~ /^https?:/
-        schema_location
-      else
-        namespace.gsub(/#{File.basename(schema_location, '.*')}$/, '').to_s + schema_location
+    def local_path
+      if reader.xsd.is_a?(Pathname)
+        path = reader.xsd.dirname.join(schema_location)
+        path.file? ? path : nil
       end
-    end
-
-    def download
-      @download ||= download_uri(uri)
-    end
-
-    def download_path
-      # we need the parent XSD's path
-      return nil if options[:xsd_file].nil?
-      parent_path = File.dirname(options[:xsd_file])
-      File.join(parent_path, File.basename(schema_location))
-    end
-
-    def local_xml
-      File.file?(download_path) ? File.read(download_path) : download
     end
 
     private
 
     def download_uri(uri)
-      reader.logger.debug(XsdReader) {"Downloading import schema for namespace '#{namespace}' from '#{uri}'"}
-      response = RestClient.get uri
+      reader.logger.debug(XsdReader) { "Downloading import schema for namespace '#{namespace}' from '#{uri}'" }
+      response = RestClient.get(uri)
       response.body
     end
   end

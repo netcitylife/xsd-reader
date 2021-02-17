@@ -3,6 +3,7 @@ module XsdReader
 
     # Отвалидировать XML пакеты против XSD
     # @param [String, Pathname] xml
+    # @return [nil]
     def validate_xml(xml)
       document = Nokogiri::XML(xml)
 
@@ -29,10 +30,11 @@ module XsdReader
       if result.any?
         raise ValidationError.new("XML validation failed", result.map(&:message))
       end
+      nil
     end
 
     # Validate XSD against another XSD (by default uses XMLSchema 1.0)
-    # @return [Array<String>]
+    # @return [nil]
     def validate(reader = nil)
       reader ||= XML.new(Pathname.new("#{__dir__}/../xml-schema-1.0.xsd"))
 
@@ -51,7 +53,6 @@ module XsdReader
         # TODO: identify current xsd some way
         raise ValidationError.new("XSD validation failed", e.message)
       end
-
       nil
     end
 

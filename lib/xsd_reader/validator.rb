@@ -8,7 +8,7 @@ module XsdReader
 
       if !imported_xsd.empty?
         # imports are explicitly provided - put all files in one tmpdir and update import paths appropriately
-        xsd    = nil
+        xml_schema = nil
         Dir.mktmpdir('XsdReader', tmp_dir) do |dir|
           # create primary xsd file
           file = SecureRandom.urlsafe_base64 + '.xsd'
@@ -19,13 +19,13 @@ module XsdReader
           end
 
           # read schema from tmp file descriptor
-          xsd = Nokogiri::XML::Schema(File.open("#{dir}/#{file}"), Nokogiri::XML::ParseOptions.new.nononet)
+          xml_schema = Nokogiri::XML::Schema(File.open("#{dir}/#{file}"), Nokogiri::XML::ParseOptions.new.nononet)
         end
       else
-        xsd = Nokogiri::XML::Schema(self.xsd, Nokogiri::XML::ParseOptions.new.nononet)
+        xml_schema = Nokogiri::XML::Schema(self.xsd, Nokogiri::XML::ParseOptions.new.nononet)
       end
 
-      xsd.validate(document).map(&:message)
+      xml_schema.validate(document).map(&:message)
     end
 
     # Отвалидировать XSD на соответствие стандарту XMLSchema 1.0
@@ -45,10 +45,10 @@ module XsdReader
     def recursive_import_xsd(reader, file, &block)
       data = reader.xml
 
-      imports.each do |import|
-        imported_name = SecureRandom.urlsafe_base64 + '.xsd'
-        data = data.sub("schemaLocation=\"#{import.schema_location}\"", "schemaLocation=\"#{imported_name}\"")
-        recursive_import_xsd(import.imported_reader, imported_name, &block)
+      reader.imports.each do |import|
+        name = SecureRandom.urlsafe_base64 + '.xsd'
+        data = data.sub("schemaLocation=\"#{import.schema_location}\"", "schemaLocation=\"#{name}\"")
+        recursive_import_xsd(import.imported_reader, name, &block)
       end
 
       block.call(file, data)

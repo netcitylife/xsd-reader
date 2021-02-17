@@ -3,30 +3,9 @@ module XsdReader
 
     # Отвалидировать XML пакеты против XSD
     # @param [String, Pathname] xml
-    # @return [nil]
     def validate_xml(xml)
       document = Nokogiri::XML(xml)
-
-      if !imported_xsd.empty?
-        # imports are explicitly provided - put all files in one tmpdir and update import paths appropriately
-        xml_schema = nil
-        Dir.mktmpdir('XsdReader', tmp_dir) do |dir|
-          # create primary xsd file
-          file = SecureRandom.urlsafe_base64 + '.xsd'
-
-          # create imported xsd files
-          recursive_import_xsd(self, file) do |f, data|
-            File.write("#{dir}/#{f}", data)
-          end
-
-          # read schema from tmp file descriptor
-          xml_schema = Nokogiri::XML::Schema(File.open("#{dir}/#{file}"), Nokogiri::XML::ParseOptions.new.nononet)
-        end
-      else
-        xml_schema = Nokogiri::XML::Schema(self.xsd, Nokogiri::XML::ParseOptions.new.nononet)
-      end
-
-      result = xml_schema.validate(document)
+      result = schema_validator.validate(document)
       if result.any?
         raise ValidationError.new("XML validation failed", result.map(&:message))
       end
@@ -57,6 +36,32 @@ module XsdReader
     end
 
     private
+
+    # Get Nokogiri::XML::Schema object to validate against
+    # @return [Nokogiri::XML::Schema]
+    def schema_validator
+      return @schema_validator if @schema_validator
+
+      if !imported_xsd.empty?
+        # imports are explicitly provided - put all files in one tmpdir and update import paths appropriately
+        Dir.mktmpdir('XsdReader', tmp_dir) do |dir|
+          # create primary xsd file
+          file = SecureRandom.urlsafe_base64 + '.xsd'
+
+          # create imported xsd files
+          recursive_import_xsd(self, file) do |f, data|
+            File.write("#{dir}/#{f}", data)
+          end
+
+          # read schema from tmp file descriptor
+          @schema_validator = Nokogiri::XML::Schema(File.open("#{dir}/#{file}"), Nokogiri::XML::ParseOptions.new.nononet)
+        end
+      else
+        @schema_validator = Nokogiri::XML::Schema(self.xsd, Nokogiri::XML::ParseOptions.new.nononet)
+      end
+
+      @schema_validator
+    end
 
     # Сформировать имена файлов и содержимое XSD схем для корректной валидации
     # @param [XML] reader

@@ -145,7 +145,7 @@ module XsdReader
     # Get child objects
     # @param [Symbol] name
     # @return [Array<BaseObject>]
-    def map_children(name, cache = {})
+    def map_children(name)
       nodes(name).map { |node| node_to_object(node) }
     end
 

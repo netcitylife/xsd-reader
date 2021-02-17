@@ -124,7 +124,7 @@ module XsdReader
     # @param [Symbol] name
     # @return [Array<BaseObject>]
     def map_children(name, cache = {})
-      super + import_map_children(name, cache)
+      super(name) + import_map_children(name, cache)
     end
 
     # Get children from all imported schemas
@@ -140,7 +140,6 @@ module XsdReader
           nil
         else
           cache[import.namespace] = true
-          reader.logger.debug(XsdReader) { "Reading schema '#{import.namespace}'" }
           import.imported_reader.schema.map_children(name, cache)
         end
       end.compact.flatten

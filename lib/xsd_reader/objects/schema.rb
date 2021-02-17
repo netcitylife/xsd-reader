@@ -130,16 +130,17 @@ module XsdReader
     # Get children from all imported schemas
     # @param [Symbol] name
     # @return [Array<BaseObject>]
+    # TODO: better recursion handling, may be refactor needed 1 reader for all schemas with centralized cache
     def import_map_children(name, cache)
       return [] if name.to_sym == :import
 
       imports.map do |import|
         if cache[import.namespace]
-          reader.logger.debug(XsdReader) { "Schema '#{target_namespace}' already parsed, skiping" }
+          reader.logger.debug(XsdReader) { "Schema '#{import.namespace}' already parsed, skiping" }
           nil
         else
           cache[import.namespace] = true
-          reader.logger.debug(XsdReader) { "Reading schema '#{target_namespace}'" }
+          reader.logger.debug(XsdReader) { "Reading schema '#{import.namespace}'" }
           import.imported_reader.schema.map_children(name, cache)
         end
       end.compact.flatten

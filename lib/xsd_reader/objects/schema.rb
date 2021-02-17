@@ -139,6 +139,7 @@ module XsdReader
           next
         end
         cache[import.namespace] = true
+        reader.logger.debug(XsdReader) { "Reading schema '#{target_namespace}'" }
         import.imported_reader.schema.map_children(name, cache)
       end.flatten
     end

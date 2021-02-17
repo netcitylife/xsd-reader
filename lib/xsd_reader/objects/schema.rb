@@ -123,16 +123,24 @@ module XsdReader
     # Override map_children on schema to get objects from all imported schemas
     # @param [Symbol] name
     # @return [Array<BaseObject>]
-    def map_children(name)
-      super + import_map_children(name)
+    def map_children(name, cache = {})
+      super + import_map_children(name, cache)
     end
 
     # Get children from all imported schemas
     # @param [Symbol] name
     # @return [Array<BaseObject>]
-    def import_map_children(name)
+    def import_map_children(name, cache)
       return [] if name.to_sym == :import
-      imports.map { |import| import.imported_reader.schema.map_children(name) }.flatten
+
+      imports.map do |import|
+        if cache[import.namespace]
+          reader.logger.debug(XsdReader) { "Schema '#{target_namespace}' already parsed, skiping" }
+          next
+        end
+        cache[import.namespace] = true
+        import.imported_reader.schema.map_children(name, cache)
+      end.flatten
     end
 
     def import_by_namespace(ns)

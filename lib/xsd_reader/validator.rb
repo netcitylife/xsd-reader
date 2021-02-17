@@ -4,38 +4,62 @@ module XsdReader
     # Отвалидировать XML пакеты против XSD
     # @param [String, Pathname] xml
     def validate_xml(xml)
-      document = Nokogiri::XML(xml)
-      result = schema_validator.validate(document)
-      if result.any?
-        raise ValidationError.new("XML validation failed", result.map(&:message))
+      begin
+        document = Nokogiri::XML(xml)
+      rescue Nokogiri::XML::SyntaxError => e
+        raise ValidationError, e
       end
-      nil
+
+      errors = schema_validator.validate(document)
+      raise ValidationError, errors.map(&:message).join('; ') if errors.any?
     end
 
     # Validate XSD against another XSD (by default uses XMLSchema 1.0)
     # @return [nil]
-    def validate(reader = nil)
-      reader ||= XML.new(Pathname.new("#{__dir__}/../xml-schema-1.0.xsd"))
-
+    def validate
       begin
-        # validate current xsd
-        reader.validate_xml(xsd)
-
-        # validate imports
-        imports.each do |import|
-          import.imported_reader.validate(reader)
-        end
-      rescue ValidationError => e
-        # TODO: identify current xsd some way
-        raise ValidationError.new("XSD validation failed", e.errors)
-      rescue ImportError => e
-        # TODO: identify current xsd some way
-        raise ValidationError.new("XSD validation failed", e.message)
+        schema_validator
+      rescue Nokogiri::XML::SyntaxError => e
+        raise ValidationError.new(e.message)
       end
-      nil
     end
 
+    # def validate(reader = nil)
+    #   reader ||= XML.new(Pathname.new("#{__dir__}/../xml-schema-1.0.xsd"))
+    #
+    #   begin
+    #     @validated_schemas = []
+    #     validate_xsd(reader)
+    #   rescue ValidationError => e
+    #     # TODO: identify current xsd some way
+    #     raise ValidationError.new("XSD validation failed", e.errors)
+    #   rescue ImportError => e
+    #     # TODO: identify current xsd some way
+    #     raise ValidationError.new("XSD validation failed", e.message)
+    #   ensure
+    #     @validated_schemas = []
+    #   end
+    #   nil
+    # end
+
     private
+
+    # Validate current XSD against passed XSD
+    # @param [XML]
+    # def validate_xsd(reader)
+    #   # validate current xsd
+    #   reader.validate_xml(xsd)
+    #   @validated_schemas.push(schema.target_namespace)
+    #
+    #   # validate imports
+    #   imports.each do |import|
+    #     if @validated_schemas.include?(import.namespace)
+    #       logger.debug(XsdReader) { "Schema '#{import.namespace}' already validated, skiping" }
+    #       next
+    #     end
+    #     import.imported_reader.validate(reader)
+    #   end
+    # end
 
     # Get Nokogiri::XML::Schema object to validate against
     # @return [Nokogiri::XML::Schema]
@@ -69,6 +93,7 @@ module XsdReader
     def recursive_import_xsd(reader, file, &block)
       data = reader.xml
 
+      # TODO: handle recursion
       reader.imports.each do |import|
         name = SecureRandom.urlsafe_base64 + '.xsd'
         data = data.sub("schemaLocation=\"#{import.schema_location}\"", "schemaLocation=\"#{name}\"")

@@ -22,15 +22,23 @@ module XsdReader
       return @imported_reader if @imported_reader
 
       xml = if reader.imported_xsd[schema_location]
+              # check in imported xsd
               reader.imported_xsd[schema_location]
             elsif schema_location =~ /^https?:/
+              # check http(s) schema location
               download_uri(schema_location)
             elsif (path = local_path)
+              # check local relative path
               path
+            elsif namespace =~ /^https?:/
+              # check http(s) namespace
+              # TODO: investigate spec conformance
+              download_uri(namespace.gsub(/#{File.basename(schema_location, '.*')}$/, '').to_s + schema_location)
             else
-              namespace.gsub(/#{File.basename(schema_location, '.*')}$/, '').to_s + schema_location
+              raise ImportError, "Failed to locate import '#{schema_location}' for namespace '#{namespace}'"
             end
 
+      # TODO: pass all provided options
       @imported_reader = XsdReader::XML.new(xml, imported_xsd: reader.imported_xsd, logger: reader.logger)
     end
 
@@ -45,7 +53,13 @@ module XsdReader
 
     def download_uri(uri)
       reader.logger.debug(XsdReader) { "Downloading import schema for namespace '#{namespace}' from '#{uri}'" }
-      response = RestClient.get(uri)
+
+      begin
+        response = RestClient.get(uri)
+      rescue RestClient::Exception => e
+        raise ImportError, e.message
+      end
+
       response.body
     end
   end

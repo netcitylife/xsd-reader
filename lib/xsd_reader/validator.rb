@@ -2,7 +2,7 @@ module XsdReader
   module Validator
 
     # Отвалидировать XML пакеты против XSD
-    # @param [String] xml
+    # @param [String, Pathname] xml
     def validate_xml(xml)
       document = Nokogiri::XML(xml)
 
@@ -25,16 +25,34 @@ module XsdReader
         xml_schema = Nokogiri::XML::Schema(self.xsd, Nokogiri::XML::ParseOptions.new.nononet)
       end
 
-      xml_schema.validate(document).map(&:message)
+      result = xml_schema.validate(document)
+      if result.any?
+        raise ValidationError.new("XML validation failed", result.map(&:message))
+      end
     end
 
-    # Отвалидировать XSD на соответствие стандарту XMLSchema 1.0
+    # Validate XSD against another XSD (by default uses XMLSchema 1.0)
     # @return [Array<String>]
-    def validate
-      reader = XML.new(Pathname.new("#{__dir__}/../xml-schema-1.0.xsd"), imported_xsd: {
-        'http://www.w3.org/2001/xml.xsd' => Pathname.new("#{__dir__}/../xml-1.0.xsd")
-      })
-      reader.validate_xml(xml)
+    def validate(reader = nil)
+      reader ||= XML.new(Pathname.new("#{__dir__}/../xml-schema-1.0.xsd"))
+
+      begin
+        # validate current xsd
+        reader.validate_xml(xsd)
+
+        # validate imports
+        imports.each do |import|
+          import.imported_reader.validate(reader)
+        end
+      rescue ValidationError => e
+        # TODO: identify current xsd some way
+        raise ValidationError.new("XSD validation failed", e.errors)
+      rescue ImportError => e
+        # TODO: identify current xsd some way
+        raise ValidationError.new("XSD validation failed", e.message)
+      end
+
+      nil
     end
 
     private

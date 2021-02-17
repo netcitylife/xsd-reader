@@ -103,7 +103,4 @@ module XsdReader
       schema.schema_for_namespace(_ns)
     end
   end
-
-  class Error < StandardError
-  end
 end

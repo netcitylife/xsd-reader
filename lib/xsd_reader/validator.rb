@@ -15,12 +15,13 @@ module XsdReader
     end
 
     # Validate XSD against another XSD (by default uses XMLSchema 1.0)
-    # @return [nil]
     def validate
       begin
         schema_validator
       rescue Nokogiri::XML::SyntaxError => e
-        raise ValidationError.new(e.message)
+        # TODO: display import map name for imported_xsd
+        message = e.message + (e.file ? " in file '#{File.basename(e.file)}'" : '')
+        raise ValidationError, message
       end
     end
 
@@ -68,6 +69,7 @@ module XsdReader
 
       if !imported_xsd.empty?
         # imports are explicitly provided - put all files in one tmpdir and update import paths appropriately
+        # TODO: save file/path map to display in errors
         Dir.mktmpdir('XsdReader', tmp_dir) do |dir|
           # create primary xsd file
           file = SecureRandom.urlsafe_base64 + '.xsd'

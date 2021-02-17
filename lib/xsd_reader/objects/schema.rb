@@ -136,12 +136,13 @@ module XsdReader
       imports.map do |import|
         if cache[import.namespace]
           reader.logger.debug(XsdReader) { "Schema '#{target_namespace}' already parsed, skiping" }
-          next
+          nil
+        else
+          cache[import.namespace] = true
+          reader.logger.debug(XsdReader) { "Reading schema '#{target_namespace}'" }
+          import.imported_reader.schema.map_children(name, cache)
         end
-        cache[import.namespace] = true
-        reader.logger.debug(XsdReader) { "Reading schema '#{target_namespace}'" }
-        import.imported_reader.schema.map_children(name, cache)
-      end.flatten
+      end.compact.flatten
     end
 
     def import_by_namespace(ns)

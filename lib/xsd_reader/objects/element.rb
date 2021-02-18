@@ -88,7 +88,19 @@ module XsdReader
     # Determine if element is required
     # @return [Boolean]
     def required?
-      min_occurs > 0 && !choice?
+      # check local min_occurs first
+      return false if min_occurs == 0
+
+      # then iterate parents and check their min_occurs or choice
+      obj = self
+      loop do
+        parent = obj.parent
+        break unless parent.is_a?(MinMaxOccurs)
+        return false if parent.is_a?(Choice) || parent.min_occurs == 0
+        obj = parent
+      end
+
+      true
     end
 
     # Determine if element is optional
@@ -100,26 +112,25 @@ module XsdReader
     # Determine if element may occur multiple times
     # @return [Boolean]
     def multiple_allowed?
-      max_occurs == :unbounded || max_occurs > 1
+      # check local max_occurs first
+      return true if max_occurs == :unbounded || max_occurs > 1
+
+      # then iterate parents and check their max_occurs
+      obj = self
+      loop do
+        parent = obj.parent
+        break unless parent.is_a?(MinMaxOccurs)
+        return true if parent.max_occurs == :unbounded || parent.max_occurs > 1
+        obj = parent
+      end
+
+      false
     end
 
     # Determine if element has complex content
     # @return [Boolean]
     def complex?
       complex_type && !complex_type.simple_content
-    end
-
-    # Determine if element is inside choice
-    # @return [Boolean]
-    def choice?
-      obj = self
-      loop do
-        parent = obj.parent
-        return true if parent.is_a?(Choice)
-        break if parent.is_a?(ComplexType) || parent.is_a?(Schema)
-        obj = parent
-      end
-      false
     end
   end
 end

@@ -23,14 +23,14 @@ module XsdReader
     # @param [Boolean] include_base
     # @return [Array<Element>]
     def all_elements(include_base = true)
-      super + (include_base && base_complex_type ? base_complex_type.all_elements : [])
+      (include_base && base_complex_type ? base_complex_type.all_elements : []) + super
     end
 
     # Get all available attributes on the current stack level, optionally including base type attributes
     # @param [Boolean] include_base
     # @return [Array<Attribute>]
     def all_attributes(include_base = true)
-      super + (include_base && base_complex_type ? base_complex_type.all_attributes : [])
+      (include_base && base_complex_type ? base_complex_type.all_attributes : []) + super
     end
   end
 end

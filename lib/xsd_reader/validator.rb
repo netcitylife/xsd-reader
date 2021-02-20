@@ -1,11 +1,14 @@
 module XsdReader
   module Validator
 
-    # Отвалидировать XML пакеты против XSD
-    # @param [String, Pathname] xml
+    # Validate XML against XSD
+    # @param [String, Pathname, Nokogiri::XML::Node] xml
     def validate_xml(xml)
+      # validate input
+      raise ValidationError unless xml.is_a?(Nokogiri::XML::Node) || xml.is_a?(Pathname) || xml.is_a?(String)
+
       begin
-        document = Nokogiri::XML(xml)
+        document = xml.is_a?(Nokogiri::XML::Node) ? xml : Nokogiri::XML(xml)
       rescue Nokogiri::XML::SyntaxError => e
         raise ValidationError, e
       end

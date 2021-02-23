@@ -130,7 +130,7 @@ module XsdReader
     # Determine if element has complex content
     # @return [Boolean]
     def complex?
-      complex_type && !complex_type.simple_content
+      complex_type && !complex_type.simple_content && all_elements.any?
     end
   end
 end

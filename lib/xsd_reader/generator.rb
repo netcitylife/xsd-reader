@@ -94,9 +94,7 @@ module XsdReader
     end
 
     def default_builder
-      xml = Builder::XmlMarkup.new
-      xml.instruct!
-      xml
+      Builder::XmlMarkup.new
     end
   end
 end

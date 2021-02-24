@@ -189,7 +189,7 @@ module XsdReader
       # exclude element that can not have elements
       return [] if NO_ELEMENTS_CONTAINER.include?(self.class.mapped_name)
 
-      if is_a?(Referenced) && obj.ref
+      if is_a?(Referenced) && ref
         reference.all_elements
       else
         # map children recursive
@@ -210,7 +210,7 @@ module XsdReader
       # exclude element that can not have elements
       return [] if NO_ATTRIBUTES_CONTAINER.include?(self.class.mapped_name)
 
-      if is_a?(Referenced) && obj.ref
+      if is_a?(Referenced) && ref
         reference.all_attributes
       else
         # map children recursive

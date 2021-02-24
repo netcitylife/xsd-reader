@@ -60,7 +60,8 @@ module XsdReader
           # get namespaces for current element and it's children
           prefix = nil
           [*all_elements, element].each do |elem|
-            namespace = elem.schema.target_namespace
+            schema    = (elem.referenced? ? elem.reference : elem).schema
+            namespace = schema.target_namespace
             unless (prefix = namespaces.key(namespace))
               prefix             = "tns#{@namespace_index += 1}"
               namespaces[prefix] = attributes["xmlns:#{prefix}"] = namespace
@@ -73,7 +74,8 @@ module XsdReader
             end
           end
         else
-          prefix = namespaces.key(element.schema.target_namespace) || element.schema.target_namespace_prefix
+          schema = (element.referenced? ? element.reference : element).schema
+          prefix = namespaces.key(schema.target_namespace) || schema.target_namespace_prefix
           value  = item.is_a?(Hash) ? item['#text'] : item
           xml.tag!("#{prefix}:#{element.name}", attributes, (value == '' ? nil : value))
         end

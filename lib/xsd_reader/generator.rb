@@ -60,26 +60,37 @@ module XsdReader
           # get namespaces for current element and it's children
           prefix = nil
           [*all_elements, element].each do |elem|
-            schema    = (elem.referenced? ? elem.reference : elem).schema
-            namespace = schema.target_namespace
-            unless (prefix = namespaces.key(namespace))
-              prefix             = "tns#{@namespace_index += 1}"
-              namespaces[prefix] = attributes["xmlns:#{prefix}"] = namespace
-            end
+            prefix = get_namespace_prefix(elem, attributes, namespaces)
           end
 
+          # generate tag recursively
           xml.tag!("#{prefix}:#{element.name}", attributes) do
             all_elements.each do |elem|
               build_element(xml, elem, item, namespaces.dup)
             end
           end
         else
-          schema = (element.referenced? ? element.reference : element).schema
-          prefix = namespaces.key(schema.target_namespace) || schema.target_namespace_prefix
+          prefix = get_namespace_prefix(element, attributes, namespaces)
           value  = item.is_a?(Hash) ? item['#text'] : item
           xml.tag!("#{prefix}:#{element.name}", attributes, (value == '' ? nil : value))
         end
       end
+    end
+
+    # Get namespace prefix for element
+    # @param [Element] element
+    # @param [Hash] attributes
+    # @param [Hash] namespaces
+    # @return [String]
+    def get_namespace_prefix(element, attributes, namespaces)
+      namespace = (element.referenced? ? element.reference : element).schema.target_namespace
+      prefix    = namespaces.key(namespace)
+      unless prefix
+        prefix             = "tns#{@namespace_index += 1}"
+        namespaces[prefix] = attributes["xmlns:#{prefix}"] = namespace
+      end
+
+      prefix
     end
 
     # Find root element with provided lookup

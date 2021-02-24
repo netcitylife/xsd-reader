@@ -189,15 +189,19 @@ module XsdReader
       # exclude element that can not have elements
       return [] if NO_ELEMENTS_CONTAINER.include?(self.class.mapped_name)
 
-      # map children recursive
-      map_children(:*).map do |obj|
-        if obj.is_a?(Element)
-          obj
-        else
-          # get elements considering references
-          (obj.is_a?(Referenced) && obj.ref ? obj.reference : obj).all_elements
-        end
-      end.flatten
+      if is_a?(Referenced) && obj.ref
+        reference.all_elements
+      else
+        # map children recursive
+        map_children(:*).map do |obj|
+          if obj.is_a?(Element)
+            obj
+          else
+            # get elements considering references
+            (obj.is_a?(Referenced) && obj.ref ? obj.reference : obj).all_elements
+          end
+        end.flatten
+      end
     end
 
     # Get all available attributes on the current stack level
@@ -206,15 +210,19 @@ module XsdReader
       # exclude element that can not have elements
       return [] if NO_ATTRIBUTES_CONTAINER.include?(self.class.mapped_name)
 
-      # map children recursive
-      map_children(:*).map do |obj|
-        if obj.is_a?(Attribute)
-          obj
-        else
-          # get attributes considering references
-          (obj.is_a?(Referenced) && obj.ref ? obj.reference : obj).all_attributes
-        end
-      end.flatten
+      if is_a?(Referenced) && obj.ref
+        reference.all_attributes
+      else
+        # map children recursive
+        map_children(:*).map do |obj|
+          if obj.is_a?(Attribute)
+            obj
+          else
+            # get attributes considering references
+            (obj.is_a?(Referenced) && obj.ref ? obj.reference : obj).all_attributes
+          end
+        end.flatten
+      end
     end
 
     # Get reader instance

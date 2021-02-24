@@ -32,9 +32,14 @@ module XsdReader
     def build_element(xml, element, data, namespaces = {})
 
       # get item data
-      data = data[element.name]
-      raise Error, "Element #{element.name} is required, but no data in provided for it" if element.required? && data.nil?
-      return unless data
+      elements         = (element.abstract ? [] : [element]) + element.substitution_elements
+      provided_element = elements.find { |elem| !data[elem.name].nil? }
+
+      raise Error, "Element #{element.name} is required, but no data in provided for it" if element.required? && provided_element.nil?
+      return unless provided_element
+
+      element = provided_element
+      data    = data[element.name]
 
       # handle repeated items
       if element.multiple_allowed?

@@ -134,6 +134,7 @@ module XsdReader
     end
 
     # Get elements that can appear instead of this one
+    # @return [Array<Element>]
     def substitution_elements
       # TODO: for now we do not search in parent schemas (that imported current schema)
       # TODO: refactor for better namespace handling (use xpath with namespaces or correct comparison)

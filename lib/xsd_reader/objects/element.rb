@@ -132,5 +132,14 @@ module XsdReader
     def complex?
       complex_type && !complex_type.simple_content && all_elements.any?
     end
+
+    # Get elements that can appear instead of this one
+    def substitution_elements
+      # TODO: for now we do not search in parent schemas (that imported current schema)
+      # TODO: refactor for better namespace handling (use xpath with namespaces or correct comparison)
+      schema.all_elements.select do |element|
+        element.substitution_group&.split(':')&.last == name
+      end
+    end
   end
 end

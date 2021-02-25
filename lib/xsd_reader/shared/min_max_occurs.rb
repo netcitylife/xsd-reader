@@ -19,7 +19,9 @@ module XsdReader
     # Compute actual max_occurs accounting parents
     # @return [Integer, Symbol]
     def computed_max_occurs
-      @computed_max_occurs ||= if parent.is_a?(MinMaxOccurs)
+      @computed_max_occurs ||= if max_occurs == :unbounded
+                                 :unbounded
+                               elsif parent.is_a?(MinMaxOccurs)
                                  [max_occurs, parent.computed_max_occurs].max
                                else
                                  max_occurs

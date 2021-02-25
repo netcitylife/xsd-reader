@@ -10,18 +10,18 @@ module XsdReader
       obj.link :complex_type, :complexType, property: obj::TYPE_PROPERTY
     end
 
-    # Get all available elements on the current stack level, optionally including type elements
-    # @param [Boolean] include_type
+    # Get all available elements on the current stack level or linked type elements
+    # @param [Boolean] linked_type
     # @return [Array<Element>]
-    def all_elements(include_type = true)
-      super + (include_type && complex_type&.linked? ? complex_type.all_elements : [])
+    def all_elements(linked_type = true)
+      (linked_type && complex_type&.linked? ? complex_type.all_elements : super)
     end
 
-    # Get all available attributes on the current stack level, optionally including type attributes
-    # @param [Boolean] include_type
+    # Get all available attributes on the current stack level or linked type attributes
+    # @param [Boolean] linked_type
     # @return [Array<Attribute>]
-    def all_attributes(include_type = true)
-      super + (include_type && complex_type&.linked? ? complex_type.all_attributes : [])
+    def all_attributes(linked_type = true)
+      (linked_type && complex_type&.linked? ? complex_type.all_attributes : super)
     end
   end
 end

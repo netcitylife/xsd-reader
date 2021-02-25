@@ -2,13 +2,13 @@ module XsdReader
   module Validator
 
     # Validate XML against XSD
-    # @param [String, Pathname, Nokogiri::XML::Node] xml
+    # @param [String, Pathname, Nokogiri::XML::Document] xml
     def validate_xml(xml)
       # validate input
-      raise ValidationError unless xml.is_a?(Nokogiri::XML::Node) || xml.is_a?(Pathname) || xml.is_a?(String)
+      raise ValidationError unless xml.is_a?(Nokogiri::XML::Document) || xml.is_a?(Pathname) || xml.is_a?(String)
 
       begin
-        document = xml.is_a?(Nokogiri::XML::Node) ? xml : Nokogiri::XML(xml)
+        document = xml.is_a?(Nokogiri::XML::Document) ? xml : Nokogiri::XML(xml)
       rescue Nokogiri::XML::SyntaxError => e
         raise ValidationError, e
       end
@@ -28,42 +28,7 @@ module XsdReader
       end
     end
 
-    # def validate(reader = nil)
-    #   reader ||= XML.new(Pathname.new("#{__dir__}/../xml-schema-1.0.xsd"))
-    #
-    #   begin
-    #     @validated_schemas = []
-    #     validate_xsd(reader)
-    #   rescue ValidationError => e
-    #     # TODO: identify current xsd some way
-    #     raise ValidationError.new("XSD validation failed", e.errors)
-    #   rescue ImportError => e
-    #     # TODO: identify current xsd some way
-    #     raise ValidationError.new("XSD validation failed", e.message)
-    #   ensure
-    #     @validated_schemas = []
-    #   end
-    #   nil
-    # end
-
     private
-
-    # Validate current XSD against passed XSD
-    # @param [XML]
-    # def validate_xsd(reader)
-    #   # validate current xsd
-    #   reader.validate_xml(xsd)
-    #   @validated_schemas.push(schema.target_namespace)
-    #
-    #   # validate imports
-    #   imports.each do |import|
-    #     if @validated_schemas.include?(import.namespace)
-    #       logger.debug(XsdReader) { "Schema '#{import.namespace}' already validated, skiping" }
-    #       next
-    #     end
-    #     import.imported_reader.validate(reader)
-    #   end
-    # end
 
     # Get Nokogiri::XML::Schema object to validate against
     # @return [Nokogiri::XML::Schema]

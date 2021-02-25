@@ -20,7 +20,7 @@ module XsdReader
     # @return [Integer, Symbol]
     def computed_max_occurs
       @computed_max_occurs ||= if parent.is_a?(MinMaxOccurs)
-                                 Math.max(max_occurs, parent.computed_max_occurs)
+                                 [max_occurs, parent.computed_max_occurs].max
                                else
                                  max_occurs
                                end
@@ -32,7 +32,7 @@ module XsdReader
       @computed_min_occurs ||= if parent.is_a?(Choice)
                                  0
                                elsif parent.is_a?(MinMaxOccurs)
-                                 Math.min(min_occurs, parent.computed_min_occurs)
+                                 [min_occurs, parent.computed_min_occurs].min
                                else
                                  min_occurs
                                end

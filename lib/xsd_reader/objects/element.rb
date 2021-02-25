@@ -88,19 +88,7 @@ module XsdReader
     # Determine if element is required
     # @return [Boolean]
     def required?
-      # check local min_occurs first
-      return false if min_occurs == 0
-
-      # then iterate parents and check their min_occurs or choice
-      obj = self
-      loop do
-        parent = obj.parent
-        break unless parent.is_a?(MinMaxOccurs)
-        return false if parent.is_a?(Choice) || parent.min_occurs == 0
-        obj = parent
-      end
-
-      true
+      computed_min_occurs > 0
     end
 
     # Determine if element is optional
@@ -112,19 +100,7 @@ module XsdReader
     # Determine if element may occur multiple times
     # @return [Boolean]
     def multiple_allowed?
-      # check local max_occurs first
-      return true if max_occurs == :unbounded || max_occurs > 1
-
-      # then iterate parents and check their max_occurs
-      obj = self
-      loop do
-        parent = obj.parent
-        break unless parent.is_a?(MinMaxOccurs)
-        return true if parent.max_occurs == :unbounded || parent.max_occurs > 1
-        obj = parent
-      end
-
-      false
+      computed_max_occurs == :unbounded || computed_max_occurs > 1
     end
 
     # Determine if element has complex content

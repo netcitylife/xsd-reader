@@ -35,5 +35,21 @@ module XsdReader
         hash
       end
     end
+
+    # Get all available elements on the current stack level, optionally including base type elements
+    # @param [Boolean] include_base
+    # @return [Array<Element>]
+    def all_elements(include_base = false)
+      # By default we do not include base element for complex restrictions
+      super
+    end
+
+    # Get all available attributes on the current stack level, optionally including base type attributes
+    # @param [Boolean] include_base
+    # @return [Array<Attribute>]
+    def all_attributes(include_base = false)
+      # By default we do not include base attributes for complex restrictions
+      super
+    end
   end
 end

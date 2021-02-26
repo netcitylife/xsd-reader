@@ -118,5 +118,11 @@ module XsdReader
         element.substitution_group&.split(':')&.last == name
       end
     end
+
+    # Get target namespace
+    # @return [String]
+    def target_namespace
+      schema.target_namespace
+    end
   end
 end

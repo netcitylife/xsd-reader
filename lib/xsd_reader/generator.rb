@@ -88,7 +88,7 @@ module XsdReader
     # @param [Hash] namespaces
     # @return [String]
     def get_namespace_prefix(element, attributes, namespaces)
-      namespace = (element.referenced? ? element.reference : element).schema.target_namespace
+      namespace = (element.referenced? ? element.reference : element).target_namespace
       prefix    = namespaces.key(namespace)
       unless prefix
         prefix             = "tns#{@namespace_index += 1}"

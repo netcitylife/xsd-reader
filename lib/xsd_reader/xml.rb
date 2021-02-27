@@ -39,6 +39,8 @@ module XsdReader
       "documentation"  => Documentation,
       "appinfo"        => Appinfo,
       'anyAttribute'   => AnyAttribute,
+      'key'            => Key,
+      'keyref'         => Keyref,
       # Restriction facets
       'minExclusive'   => Facet,
       'minInclusive'   => Facet,

@@ -111,7 +111,7 @@ module XsdReader
       search_schema = schema_for_namespace(name_prefix)
 
       # find element in target schema
-      result = search_schema.node.xpath("//xs:#{node_name}[@name=\"#{name_local}\"]", { 'xs' => XML_SCHEMA }).first
+      result = search_schema.node.xpath("./xs:#{node_name}[@name=\"#{name_local}\"]", { 'xs' => XML_SCHEMA }).first
 
       result ? search_schema.node_to_object(result) : nil
     end

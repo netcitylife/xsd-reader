@@ -49,25 +49,37 @@ module XsdReader
         data = [data]
       end
 
+      # configure namespaces
+      # TODO: попытаться использовать collect_namespaces?
+      attributes = {}
+      all_attributes = element.all_attributes
+      if element.complex?
+        all_elements = element.all_elements
+
+        # get namespaces for current element and it's children
+        prefix = nil
+        [*all_elements, element].each do |elem|
+          prefix = get_namespace_prefix(elem, attributes, namespaces)
+        end
+      else
+        prefix = get_namespace_prefix(element, attributes, namespaces)
+      end
+
       # iterate through each item
       data.each do |item|
 
         # prepare attributes
-        attributes = element.all_attributes.map do |attribute|
+        all_attributes.each do |attribute|
           value = item["@#{attribute.name}"]
-          value ? [attribute.name, value] : nil
-        end.compact.to_h
+          if value
+            attributes[attribute.name] = value
+          else
+            attributes.delete(attribute.name)
+          end
+        end
 
         # generate element
         if element.complex?
-          all_elements = element.all_elements
-
-          # get namespaces for current element and it's children
-          prefix = nil
-          [*all_elements, element].each do |elem|
-            prefix = get_namespace_prefix(elem, attributes, namespaces)
-          end
-
           # generate tag recursively
           xml.tag!("#{prefix}:#{element.name}", attributes) do
             all_elements.each do |elem|
@@ -75,7 +87,6 @@ module XsdReader
             end
           end
         else
-          prefix = get_namespace_prefix(element, attributes, namespaces)
           value  = item.is_a?(Hash) ? item['#text'] : item
           xml.tag!("#{prefix}:#{element.name}", attributes, (value == '' ? nil : value))
         end

@@ -51,6 +51,26 @@ module XsdReader
     # @return [ComplexContent]
     child :complex_content, :complexContent
 
+    # Nested group
+    # @!attribute group
+    # @return [Group]
+    child :group, :group
+
+    # Nested all
+    # @!attribute all
+    # @return [All]
+    child :all, :all
+
+    # Nested choice
+    # @!attribute choice
+    # @return [Choice]
+    child :choice, :choice
+
+    # Nested sequence
+    # @!attribute sequence
+    # @return [Sequence]
+    child :sequence, :sequence
+
     # Determine if this is a linked type
     # @return [Boolean]
     def linked?

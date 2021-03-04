@@ -7,5 +7,25 @@ module XsdReader
   class Sequence < BaseObject
     include MinMaxOccurs
     include ElementContainer
+
+    # Nested groups
+    # @!attribute groups
+    # @return [Array<Group>]
+    child :groups, [:group]
+
+    # Nested choices
+    # @!attribute choices
+    # @return [Array<Choice>]
+    child :choices, [:choice]
+
+    # Nested sequences
+    # @!attribute sequences
+    # @return [Array<Sequence>]
+    child :sequences, [:sequence]
+
+    # Nested anys
+    # @!attribute anys
+    # @return [Array<Any>]
+    child :anys, [:any]
   end
 end

@@ -24,10 +24,6 @@ module XsdReader
       xml = if reader.imported_xsd[namespace]
               # check in imported xsd by namespace
               reader.imported_xsd[namespace]
-            elsif reader.imported_xsd[schema_location]
-              # check in imported xsd by location
-              # TODO: leave only namespace?
-              reader.imported_xsd[schema_location]
             elsif schema_location =~ /^https?:/
               # check http(s) schema location
               download_uri(schema_location)
